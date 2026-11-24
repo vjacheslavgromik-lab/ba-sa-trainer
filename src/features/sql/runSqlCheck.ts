@@ -2,7 +2,6 @@
 // Каждая проверка создаёт новую базу из скрипта кейса, поэтому изменения данных не переживают проверку.
 import type { Database, SqlJsStatic } from "sql.js";
 import { compareResults, type CompareOutcome, type QueryResult } from "./compare";
-import sqlWasmUrl from "sql.js/dist/sql-wasm.wasm?url";
 
 export interface SqlCheckInput {
   /** Скрипт создания и наполнения тестовой базы из файла кейса. */
@@ -15,9 +14,14 @@ export interface SqlCheckInput {
 
 let enginePromise: Promise<SqlJsStatic> | undefined;
 
-/** Лениво загружает движок sql.js; повторные вызовы возвращают тот же промис. */
+/**
+ * Лениво загружает движок sql.js (JS и WASM) и кэширует промис: повторные вызовы возвращают тот же движок.
+ * Ссылка на WASM-файл тоже находится здесь, чтобы не попадать в основной бандл (US-6.5).
+ */
 export function loadSqlEngine(): Promise<SqlJsStatic> {
-  enginePromise ??= import("sql.js").then((m) => m.default({ locateFile: () => sqlWasmUrl }));
+  enginePromise ??= Promise.all([import("sql.js"), import("sql.js/dist/sql-wasm.wasm?url")]).then(
+    ([sql, wasm]) => sql.default({ locateFile: () => wasm.default }),
+  );
   return enginePromise;
 }
 
