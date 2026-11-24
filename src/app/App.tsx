@@ -2,6 +2,8 @@ import { HashRouter, Navigate, NavLink, Route, Routes } from "react-router-dom";
 import ModulesPage from "../features/modules/ModulesPage";
 import ModulePage from "../features/modules/ModulePage";
 import { Placeholder } from "../features/modules/Placeholder";
+import TheoryView from "../features/modules/TheoryView";
+import CasesView from "../features/modules/CasesView";
 
 function Home() {
   return (
@@ -30,8 +32,8 @@ export default function App() {
           <Route path="/modules" element={<ModulesPage />} />
           <Route path="/modules/:id" element={<ModulePage />}>
             <Route index element={<Navigate to="theory" replace />} />
-            <Route path="theory" element={<Placeholder title="Теория" />} />
-            <Route path="cases" element={<Placeholder title="Кейсы" />} />
+            <Route path="theory" element={<TheoryView />} />
+            <Route path="cases" element={<CasesView />} />
             <Route path="trainers" element={<Placeholder title="Тренажёры" />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
