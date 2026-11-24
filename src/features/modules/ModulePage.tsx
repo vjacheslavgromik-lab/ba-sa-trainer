@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useParams } from "react-router-dom";
 import { findModule } from "../../data/modules";
-import { Badge } from "../../shared/ui/Badge";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const TABS = [
   { to: "theory", label: "Теория" },
@@ -28,8 +29,19 @@ export default function ModulePage() {
       <p>{module.slice && <Badge tone="info">Срез</Badge>}</p>
       <nav aria-label="Разделы модуля" className="tabs">
         {TABS.map((t) => (
-          <NavLink key={t.to} to={t.to} className={({ isActive }) => (isActive ? "tab tab--active" : "tab")}>
-            {t.label}
+          <NavLink
+            key={t.to}
+            to={t.to}
+            className={({ isActive }) =>
+              cn(
+                "-mb-px border-b-2 px-4 py-3 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-primary)]",
+                isActive
+                  ? "border-[var(--accent-primary)] font-semibold text-[var(--accent-primary)]"
+                  : "border-transparent text-[var(--text-secondary)]",
+              )
+            }
+          >
+              {t.label}
           </NavLink>
         ))}
       </nav>

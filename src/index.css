@@ -1,4 +1,37 @@
 @import "./styles/tokens.css";
+/* Tailwind без preflight: существующие базовые стили страницы не меняются. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Переменные shadcn/ui, привязанные к токенам visual-style.md. */
+:root {
+  --background: var(--bg-page);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --muted: var(--bg-muted);
+  --muted-foreground: var(--text-secondary);
+  --primary: var(--accent-primary);
+  --primary-foreground: #FFFFFF;
+  --destructive: var(--status-error);
+  --border: var(--border-default);
+  --ring: var(--accent-primary);
+  --radius: var(--radius-control);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+}
 
 body {
   margin: 0;
@@ -48,28 +81,7 @@ main {
 .module-card__result { color: var(--text-secondary); font-size: 14px; }
 .module-card__meta { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: auto; }
 
-.badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  height: 24px; padding: 0 var(--space-3); border-radius: 12px;
-  font-size: 13px; font-weight: 500;
-}
-.badge--success { color: var(--status-success); background: var(--status-success-soft); }
-.badge--warning { color: var(--status-warning); background: var(--status-warning-soft); }
-.badge--error { color: var(--status-error); background: var(--status-error-soft); }
-.badge--info { color: var(--accent-primary); background: var(--accent-soft); }
-.badge--planned { color: var(--status-planned); background: var(--bg-muted); }
-
-.progress { display: flex; align-items: center; gap: var(--space-3); }
-.progress__track { flex: 1; height: 8px; background: var(--border-default); border-radius: 4px; overflow: hidden; }
-.progress__fill { height: 100%; background: var(--status-success); }
-.progress__text { font-size: 14px; color: var(--text-secondary); white-space: nowrap; }
-
 .tabs { display: flex; gap: var(--space-2); border-bottom: 1px solid var(--border-default); margin: var(--space-4) 0; }
-.tab {
-  padding: var(--space-3) var(--space-4); color: var(--text-secondary);
-  text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
-}
-.tab--active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
 
 .case-card { margin-bottom: var(--space-8); }
 .stage {
@@ -79,15 +91,8 @@ main {
 .stage h3 { margin-top: 0; color: var(--accent-primary); }
 .question { border: 0; padding: 0; margin: var(--space-4) 0; }
 .question legend { font-weight: 600; margin-bottom: var(--space-2); }
-.option { display: block; padding: var(--space-1) 0; }
 .feedback { font-size: 14px; margin: var(--space-2) 0; }
 .feedback--ok { color: var(--status-success); }
 .feedback--bad { color: var(--status-error); }
 
 .practice-answer { margin: var(--space-4) 0; display: grid; gap: var(--space-2); }
-.practice-answer textarea {
-  font: inherit; padding: var(--space-3); border-radius: var(--radius-card);
-  border: 1px solid var(--border-default); background: var(--bg-page); color: var(--text-primary);
-  resize: vertical; min-height: 12rem;
-}
-.practice-answer textarea:disabled { opacity: 0.85; }
