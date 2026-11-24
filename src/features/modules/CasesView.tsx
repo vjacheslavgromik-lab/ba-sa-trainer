@@ -74,6 +74,7 @@ function CaseCard({ data }: { data: CaseData }) {
   }
 
   const doneCount = checks.filter(Boolean).length;
+  const checkScore = checks.length === 0 ? 0 : doneCount / checks.length;
 
   return (
     <section className="case-card" aria-labelledby={`case-${data.id}`}>
@@ -170,6 +171,11 @@ function CaseCard({ data }: { data: CaseData }) {
               <>
                 <h4>Самопроверка по чек-листу</h4>
                 <p className="muted">Отметьте пункты, которые ваш ответ выполняет. Выполнено: {doneCount} из {data.checklist.length}.</p>
+                {isPassed(checkScore) ? (
+                  <p className="feedback feedback--ok">Кейс засчитан: выполнено не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
+                ) : (
+                  <p className="feedback feedback--bad">Кейс не засчитан: нужно выполнить не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
+                )}
                 <ul className="checklist">
                   {data.checklist.map((item, i) => (
                     <li key={item}>
