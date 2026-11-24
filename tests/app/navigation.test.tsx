@@ -6,6 +6,15 @@ import App from "../../src/app/App";
 import { MODULES } from "../../src/data/modules";
 import { ProgressBar } from "../../src/shared/ui/ProgressBar";
 
+// jsdom не реализует ResizeObserver; Radix (RadioGroup, Progress) его использует.
+if (!("ResizeObserver" in globalThis)) {
+  (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 beforeEach(() => {
   cleanup();
   window.location.hash = "#/";

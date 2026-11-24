@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { MODULES, STATUS_LABEL } from "../../data/modules";
-import { Badge } from "../../shared/ui/Badge";
+import { Badge } from "@/components/ui/badge";
 
 export default function ModulesPage() {
   return (

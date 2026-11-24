@@ -1,18 +1,10 @@
+import { Progress } from "@/components/ui/progress";
+
 export function ProgressBar({ value, max, label }: { value: number; max: number; label: string }) {
-  const percent = max === 0 ? 0 : Math.round((value / max) * 100);
   return (
-    <div className="progress">
-      <div
-        className="progress__track"
-        role="progressbar"
-        aria-label={label}
-        aria-valuemin={0}
-        aria-valuemax={max}
-        aria-valuenow={value}
-      >
-        <div className="progress__fill" style={{ width: `${percent}%` }} />
-      </div>
-      <span className="progress__text">
+    <div className="flex items-center gap-3">
+      <Progress className="flex-1" value={value} max={max} aria-label={label} />
+      <span className="whitespace-nowrap text-sm text-[var(--text-secondary)]">
         {value} из {max}
       </span>
     </div>

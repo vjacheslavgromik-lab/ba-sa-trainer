@@ -3,6 +3,11 @@ import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
 import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, saveProgress, scoreCase, type Progress } from "../progress/progress";
 import { ProgressBar } from "../../shared/ui/ProgressBar";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function CasesView() {
   const { id } = useParams();
@@ -99,17 +104,22 @@ function CaseCard({ data }: { data: CaseData }) {
                 <legend>
                   {idx + 1}. {q.prompt}
                 </legend>
-                {q.options.map((opt, oi) => (
-                  <label key={oi} className="option">
-                    <input
-                      type="radio"
-                      name={qid}
-                      checked={answers[qid] === oi}
-                      onChange={() => setAnswers({ ...answers, [qid]: oi })}
-                    />{" "}
-                    {opt}
-                  </label>
-                ))}
+                <RadioGroup
+                  disabled={submitted}
+                  value={answers[qid] === undefined ? undefined : String(answers[qid])}
+                  onValueChange={(v) => setAnswers({ ...answers, [qid]: Number(v) })}
+                  aria-label={q.prompt}
+                >
+                  {q.options.map((opt, oi) => {
+                    const id = `${qid}-opt-${oi}`;
+                    return (
+                      <div key={oi} className="flex items-center gap-2 py-1">
+                        <RadioGroupItem id={id} value={String(oi)} />
+                        <Label htmlFor={id}>{opt}</Label>
+                      </div>
+                    );
+                  })}
+                </RadioGroup>
                 {submitted && (
                   <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
                     {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
@@ -119,9 +129,9 @@ function CaseCard({ data }: { data: CaseData }) {
             );
           })}
           {!submitted && (
-            <button type="submit" disabled={Object.keys(answers).length < data.questions.length}>
+            <Button type="submit" disabled={Object.keys(answers).length < data.questions.length}>
               Проверить ответы
-            </button>
+            </Button>
           )}
         </form>
 
@@ -133,9 +143,9 @@ function CaseCard({ data }: { data: CaseData }) {
             ) : (
               <>
                 <p className="feedback feedback--bad">Порог не достигнут. Перечитайте теорию и пройдите вопросы заново.</p>
-                <button type="button" onClick={retry}>
+                <Button type="button" variant="secondary" onClick={retry}>
                   Пройти заново
-                </button>
+                </Button>
               </>
             )}
           </>
@@ -153,7 +163,7 @@ function CaseCard({ data }: { data: CaseData }) {
               <label htmlFor={`answer-${data.id}`}>
                 <strong>Ваш ответ</strong>
               </label>
-              <textarea
+              <Textarea
                 id={`answer-${data.id}`}
                 rows={10}
                 value={practiceText}
@@ -161,9 +171,9 @@ function CaseCard({ data }: { data: CaseData }) {
                 onChange={(e) => setPracticeText(e.target.value)}
               />
               {!practiceSent && (
-                <button type="button" onClick={sendPractice} disabled={practiceText.trim().length === 0}>
+                <Button type="button" onClick={sendPractice} disabled={practiceText.trim().length === 0}>
                   Отправить ответ
-                </button>
+                </Button>
               )}
             </div>
 
@@ -177,18 +187,15 @@ function CaseCard({ data }: { data: CaseData }) {
                   <p className="feedback feedback--bad">Кейс не засчитан: нужно выполнить не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
                 )}
                 <ul className="checklist">
-                  {data.checklist.map((item, i) => (
-                    <li key={item}>
-                      <label className="option">
-                        <input
-                          type="checkbox"
-                          checked={checks[i]}
-                          onChange={(e) => toggleCheck(i, e.target.checked)}
-                        />{" "}
-                        {item}
-                      </label>
-                    </li>
-                  ))}
+                  {data.checklist.map((item, i) => {
+                    const id = `${data.id}-check-${i}`;
+                    return (
+                      <li key={item} className="flex items-center gap-2 py-1">
+                        <Checkbox id={id} checked={checks[i]} onCheckedChange={(v) => toggleCheck(i, v === true)} />
+                        <Label htmlFor={id}>{item}</Label>
+                      </li>
+                    );
+                  })}
                 </ul>
                 <h4>Эталонное решение</h4>
                 <p>{data.reference}</p>
