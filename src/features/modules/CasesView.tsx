@@ -25,6 +25,10 @@ function CaseCard({ data }: { data: CaseData }) {
   const [answers, setAnswers] = useState<Record<string, number>>(saved);
   const [submitted, setSubmitted] = useState(Object.keys(saved).length === data.questions.length);
 
+  const savedPractice = progress.cases[data.id]?.practice;
+  const [practiceText, setPracticeText] = useState<string>(savedPractice?.answer ?? "");
+  const [practiceSent, setPracticeSent] = useState<boolean>(savedPractice?.submitted ?? false);
+
   const correct = useMemo(() => {
     const map: Record<string, number> = {};
     for (const qid of data.questions) {
@@ -37,16 +41,27 @@ function CaseCard({ data }: { data: CaseData }) {
   const score = scoreCase(answers, correct);
   const passed = submitted && isPassed(score);
 
-  function submit() {
-    const next: Progress = { ...(progress ?? emptyProgress()), cases: { ...progress.cases, [data.id]: { answers } } };
+  function persist(patch: Partial<NonNullable<Progress["cases"][string]>>) {
+    const base = progress ?? emptyProgress();
+    const current = base.cases[data.id] ?? { answers: {} };
+    const next: Progress = { ...base, cases: { ...base.cases, [data.id]: { ...current, ...patch } } };
     setProgress(next);
     saveProgress(next);
+  }
+
+  function submit() {
+    persist({ answers });
     setSubmitted(true);
   }
 
   function retry() {
     setAnswers({});
     setSubmitted(false);
+  }
+
+  function sendPractice() {
+    persist({ practice: { answer: practiceText, submitted: true } });
+    setPracticeSent(true);
   }
 
   return (
@@ -121,14 +136,39 @@ function CaseCard({ data }: { data: CaseData }) {
           <>
             <h4>Задание</h4>
             <p>{data.condition}</p>
-            <h4>Чек-лист</h4>
-            <ul>
-              {data.checklist.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <h4>Эталонное решение</h4>
-            <p>{data.reference}</p>
+
+            <div className="practice-answer">
+              <label htmlFor={`answer-${data.id}`}>
+                <strong>Ваш ответ</strong>
+              </label>
+              <textarea
+                id={`answer-${data.id}`}
+                rows={10}
+                value={practiceText}
+                disabled={practiceSent}
+                onChange={(e) => setPracticeText(e.target.value)}
+              />
+              {!practiceSent && (
+                <button type="button" onClick={sendPractice} disabled={practiceText.trim().length === 0}>
+                  Отправить ответ
+                </button>
+              )}
+            </div>
+
+            {practiceSent ? (
+              <>
+                <h4>Чек-лист</h4>
+                <ul>
+                  {data.checklist.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <h4>Эталонное решение</h4>
+                <p>{data.reference}</p>
+              </>
+            ) : (
+              <p className="muted">Чек-лист и эталонное решение появятся после отправки ответа.</p>
+            )}
           </>
         ) : (
           <p className="muted">Кейс откроется после прохождения проверки теории.</p>

@@ -83,3 +83,11 @@ main {
 .feedback { font-size: 14px; margin: var(--space-2) 0; }
 .feedback--ok { color: var(--status-success); }
 .feedback--bad { color: var(--status-error); }
+
+.practice-answer { margin: var(--space-4) 0; display: grid; gap: var(--space-2); }
+.practice-answer textarea {
+  font: inherit; padding: var(--space-3); border-radius: var(--radius-card);
+  border: 1px solid var(--border-default); background: var(--bg-page); color: var(--text-primary);
+  resize: vertical; min-height: 12rem;
+}
+.practice-answer textarea:disabled { opacity: 0.85; }
