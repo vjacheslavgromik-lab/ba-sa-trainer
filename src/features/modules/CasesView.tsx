@@ -28,6 +28,9 @@ function CaseCard({ data }: { data: CaseData }) {
   const savedPractice = progress.cases[data.id]?.practice;
   const [practiceText, setPracticeText] = useState<string>(savedPractice?.answer ?? "");
   const [practiceSent, setPracticeSent] = useState<boolean>(savedPractice?.submitted ?? false);
+  const [checks, setChecks] = useState<boolean[]>(
+    savedPractice?.checks ?? data.checklist.map(() => false),
+  );
 
   const correct = useMemo(() => {
     const map: Record<string, number> = {};
@@ -60,9 +63,17 @@ function CaseCard({ data }: { data: CaseData }) {
   }
 
   function sendPractice() {
-    persist({ practice: { answer: practiceText, submitted: true } });
+    persist({ practice: { answer: practiceText, submitted: true, checks } });
     setPracticeSent(true);
   }
+
+  function toggleCheck(index: number, value: boolean) {
+    const next = checks.map((c, i) => (i === index ? value : c));
+    setChecks(next);
+    if (practiceSent) persist({ practice: { answer: practiceText, submitted: true, checks: next } });
+  }
+
+  const doneCount = checks.filter(Boolean).length;
 
   return (
     <section className="case-card" aria-labelledby={`case-${data.id}`}>
@@ -157,10 +168,20 @@ function CaseCard({ data }: { data: CaseData }) {
 
             {practiceSent ? (
               <>
-                <h4>Чек-лист</h4>
-                <ul>
-                  {data.checklist.map((item) => (
-                    <li key={item}>{item}</li>
+                <h4>Самопроверка по чек-листу</h4>
+                <p className="muted">Отметьте пункты, которые ваш ответ выполняет. Выполнено: {doneCount} из {data.checklist.length}.</p>
+                <ul className="checklist">
+                  {data.checklist.map((item, i) => (
+                    <li key={item}>
+                      <label className="option">
+                        <input
+                          type="checkbox"
+                          checked={checks[i]}
+                          onChange={(e) => toggleCheck(i, e.target.checked)}
+                        />{" "}
+                        {item}
+                      </label>
+                    </li>
                   ))}
                 </ul>
                 <h4>Эталонное решение</h4>
