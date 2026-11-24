@@ -169,7 +169,7 @@ function CaseCard({ data }: { data: CaseData }) {
 
             {practiceSent ? (
               <>
-                <h4>Самопроверка по чек-листу</h4>
+                <h4>Проверка по чек-листу</h4>
                 <p className="muted">Отметьте пункты, которые ваш ответ выполняет. Выполнено: {doneCount} из {data.checklist.length}.</p>
                 {isPassed(checkScore) ? (
                   <p className="feedback feedback--ok">Кейс засчитан: выполнено не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
