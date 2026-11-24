@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { scoreCase, isPassed, PASS_THRESHOLD } from "../../src/features/progress/progress";
+import { scoreCase, isPassed, requiredCorrect, PASS_THRESHOLD } from "../../src/features/progress/progress";
 import { getCases, getQuestion, getTheory } from "../../src/content/loader";
 
 describe("Порог прохождения кейса (FR-17)", () => {
@@ -11,6 +11,15 @@ describe("Порог прохождения кейса (FR-17)", () => {
     expect(PASS_THRESHOLD).toBe(0.75);
     expect(isPassed(0.75)).toBe(true);
     expect(isPassed(0.5)).toBe(false);
+  });
+  it("US-4.2: при 4 вопросах порог — 3 верных (2 из 4 не проходят, 3 из 4 проходят)", () => {
+    expect(requiredCorrect(4)).toBe(3);
+    expect(isPassed(2 / 4)).toBe(false);
+    expect(isPassed(3 / 4)).toBe(true);
+  });
+  it("requiredCorrect округляет вверх для других размеров кейса", () => {
+    expect(requiredCorrect(8)).toBe(6);
+    expect(requiredCorrect(5)).toBe(4);
   });
 });
 

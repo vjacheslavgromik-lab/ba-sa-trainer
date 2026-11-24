@@ -50,3 +50,8 @@ export function scoreCase(answers: Record<string, number>, correct: Record<strin
 export function isPassed(score: number): boolean {
   return score >= PASS_THRESHOLD;
 }
+
+/** Минимальное число верных ответов из total, при котором порог пройден (US-4.2). */
+export function requiredCorrect(total: number): number {
+  return Math.ceil(total * PASS_THRESHOLD);
+}
