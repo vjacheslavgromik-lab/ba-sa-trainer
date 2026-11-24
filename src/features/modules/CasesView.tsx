@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
-import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, saveProgress, scoreCase, type Progress } from "../progress/progress";
+import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, requiredCorrect, saveProgress, scoreCase, type Progress } from "../progress/progress";
 import { ProgressBar } from "../../shared/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,7 +47,10 @@ function CaseCard({ data }: { data: CaseData }) {
   }, [data.questions]);
 
   const score = scoreCase(answers, correct);
-  const passed = submitted && isPassed(score);
+  const total = data.questions.length;
+  const rightCount = Math.round(score * total);
+  const needed = requiredCorrect(total);
+  const passed = submitted && rightCount >= needed;
 
   function persist(patch: Partial<NonNullable<Progress["cases"][string]>>) {
     const base = progress ?? emptyProgress();
@@ -121,9 +124,14 @@ function CaseCard({ data }: { data: CaseData }) {
                   })}
                 </RadioGroup>
                 {submitted && (
-                  <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
-                    {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
-                  </p>
+                  <>
+                    <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
+                      {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
+                    </p>
+                    {answers[qid] !== q.correct && (
+                      <p className="feedback">Правильный ответ: {q.options[q.correct]}</p>
+                    )}
+                  </>
                 )}
               </fieldset>
             );
@@ -137,12 +145,14 @@ function CaseCard({ data }: { data: CaseData }) {
 
         {submitted && (
           <>
-            <ProgressBar value={Math.round(score * data.questions.length)} max={data.questions.length} label="Верных ответов" />
+            <ProgressBar value={rightCount} max={total} label="Верных ответов" />
             {passed ? (
               <p className="feedback feedback--ok">Порог пройден. Практический кейс открыт.</p>
             ) : (
               <>
-                <p className="feedback feedback--bad">Порог не достигнут. Перечитайте теорию и пройдите вопросы заново.</p>
+                <p className="feedback feedback--bad">
+                  Порог не достигнут: верно {rightCount} из {total}, нужно не менее {needed}. Перечитайте теорию и пройдите вопросы заново.
+                </p>
                 <Button type="button" variant="secondary" onClick={retry}>
                   Пройти заново
                 </Button>
@@ -205,7 +215,9 @@ function CaseCard({ data }: { data: CaseData }) {
             )}
           </>
         ) : (
-          <p className="muted">Кейс откроется после прохождения проверки теории.</p>
+          <p className="muted">
+            Кейс откроется после прохождения проверки теории{submitted ? `: верно ${rightCount} из ${total}, нужно не менее ${needed}` : ""}.
+          </p>
         )}
       </section>
     </section>
