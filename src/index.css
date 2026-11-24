@@ -70,3 +70,16 @@ main {
   text-decoration: none; border-bottom: 2px solid transparent; margin-bottom: -1px;
 }
 .tab--active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
+
+.case-card { margin-bottom: var(--space-8); }
+.stage {
+  margin-top: var(--space-6); padding: var(--space-4) var(--space-6);
+  background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--radius-card);
+}
+.stage h3 { margin-top: 0; color: var(--accent-primary); }
+.question { border: 0; padding: 0; margin: var(--space-4) 0; }
+.question legend { font-weight: 600; margin-bottom: var(--space-2); }
+.option { display: block; padding: var(--space-1) 0; }
+.feedback { font-size: 14px; margin: var(--space-2) 0; }
+.feedback--ok { color: var(--status-success); }
+.feedback--bad { color: var(--status-error); }
