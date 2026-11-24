@@ -37,11 +37,6 @@ function CaseCard({ data }: { data: CaseData }) {
   const score = scoreCase(answers, correct);
   const passed = submitted && isPassed(score);
 
-  function retry() {
-    setAnswers({});
-    setSubmitted(false);
-  }
-
   function submit() {
     const next: Progress = { ...(progress ?? emptyProgress()), cases: { ...progress.cases, [data.id]: { answers } } };
     setProgress(next);
@@ -49,84 +44,96 @@ function CaseCard({ data }: { data: CaseData }) {
     setSubmitted(true);
   }
 
+  function retry() {
+    setAnswers({});
+    setSubmitted(false);
+  }
+
   return (
     <section className="case-card" aria-labelledby={`case-${data.id}`}>
       <h2 id={`case-${data.id}`}>{data.title}</h2>
-      <h3>Задание</h3>
-      <p>{data.condition}</p>
 
-      <h3>Проверка теории</h3>
-      <p className="muted">Ответьте на вопросы. Кейс откроется, если верно не менее {Math.round(PASS_THRESHOLD * 100)}%.</p>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
-      >
-        {data.questions.map((qid, idx) => {
-          const q = getQuestion(qid);
-          if (!q) return null;
-          return (
-            <fieldset key={qid} className="question" disabled={submitted}>
-              <legend>
-                {idx + 1}. {q.prompt}
-              </legend>
-              {q.options.map((opt, oi) => (
-                <label key={oi} className="option">
-                  <input
-                    type="radio"
-                    name={qid}
-                    checked={answers[qid] === oi}
-                    onChange={() => setAnswers({ ...answers, [qid]: oi })}
-                  />{" "}
-                  {opt}
-                </label>
-              ))}
-              {submitted && (
-                <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
-                  {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
-                </p>
-              )}
-            </fieldset>
-          );
-        })}
-        {!submitted && (
-          <button type="submit" disabled={Object.keys(answers).length < data.questions.length}>
-            Проверить ответы
-          </button>
-        )}
-      </form>
-
-      {submitted && (
-        <>
-          <ProgressBar value={Math.round(score * data.questions.length)} max={data.questions.length} label="Верных ответов" />
-          {!passed && (
-            <p className="feedback feedback--bad">
-              Порог не достигнут. Перечитайте теорию и пройдите вопросы заново.
-            </p>
-          )}
-          {!passed && (
-            <button type="button" onClick={retry}>
-              Пройти заново
+      <section className="stage" aria-labelledby={`theory-check-${data.id}`}>
+        <h3 id={`theory-check-${data.id}`}>Шаг 1. Проверка теории</h3>
+        <p className="muted">
+          Ответьте на вопросы. Практический кейс откроется, если верно не менее {Math.round(PASS_THRESHOLD * 100)}%.
+        </p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          {data.questions.map((qid, idx) => {
+            const q = getQuestion(qid);
+            if (!q) return null;
+            return (
+              <fieldset key={qid} className="question" disabled={submitted}>
+                <legend>
+                  {idx + 1}. {q.prompt}
+                </legend>
+                {q.options.map((opt, oi) => (
+                  <label key={oi} className="option">
+                    <input
+                      type="radio"
+                      name={qid}
+                      checked={answers[qid] === oi}
+                      onChange={() => setAnswers({ ...answers, [qid]: oi })}
+                    />{" "}
+                    {opt}
+                  </label>
+                ))}
+                {submitted && (
+                  <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
+                    {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
+                  </p>
+                )}
+              </fieldset>
+            );
+          })}
+          {!submitted && (
+            <button type="submit" disabled={Object.keys(answers).length < data.questions.length}>
+              Проверить ответы
             </button>
           )}
-        </>
-      )}
+        </form>
 
-      {passed ? (
-        <>
-          <h3>Чек-лист</h3>
-          <ul>
-            {data.checklist.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-          <h3>Эталонное решение</h3>
-          <p>{data.reference}</p>
-        </>
-      ) : (
-        <p className="muted">Эталонное решение и чек-лист откроются после прохождения теории.</p>
-      )}
+        {submitted && (
+          <>
+            <ProgressBar value={Math.round(score * data.questions.length)} max={data.questions.length} label="Верных ответов" />
+            {passed ? (
+              <p className="feedback feedback--ok">Порог пройден. Практический кейс открыт.</p>
+            ) : (
+              <>
+                <p className="feedback feedback--bad">Порог не достигнут. Перечитайте теорию и пройдите вопросы заново.</p>
+                <button type="button" onClick={retry}>
+                  Пройти заново
+                </button>
+              </>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="stage" aria-labelledby={`practice-${data.id}`}>
+        <h3 id={`practice-${data.id}`}>Шаг 2. Практический кейс</h3>
+        {passed ? (
+          <>
+            <h4>Задание</h4>
+            <p>{data.condition}</p>
+            <h4>Чек-лист</h4>
+            <ul>
+              {data.checklist.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <h4>Эталонное решение</h4>
+            <p>{data.reference}</p>
+          </>
+        ) : (
+          <p className="muted">Кейс откроется после прохождения проверки теории.</p>
+        )}
+      </section>
     </section>
   );
 }
