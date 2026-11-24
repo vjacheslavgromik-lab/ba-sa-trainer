@@ -1,0 +1,42 @@
+import { HashRouter, Navigate, NavLink, Route, Routes } from "react-router-dom";
+import ModulesPage from "../features/modules/ModulesPage";
+import ModulePage from "../features/modules/ModulePage";
+import { Placeholder } from "../features/modules/Placeholder";
+
+function Home() {
+  return (
+    <section aria-labelledby="home-title">
+      <h1 id="home-title">Освойте системный анализ по шагам</h1>
+      <p>Выберите модуль в любом порядке. Прогресс пока не сохраняется.</p>
+      <NavLink to="/modules">Перейти к модулям</NavLink>
+    </section>
+  );
+}
+
+export default function App() {
+  return (
+    <HashRouter>
+      <a className="skip-link" href="#main">Перейти к содержимому</a>
+      <header className="app-header">
+        <span className="app-header__brand">BA → System Analyst</span>
+        <nav aria-label="Основная навигация">
+          <NavLink to="/">Главная</NavLink>
+          <NavLink to="/modules">Модули</NavLink>
+        </nav>
+      </header>
+      <main id="main" tabIndex={-1}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/modules" element={<ModulesPage />} />
+          <Route path="/modules/:id" element={<ModulePage />}>
+            <Route index element={<Navigate to="theory" replace />} />
+            <Route path="theory" element={<Placeholder title="Теория" />} />
+            <Route path="cases" element={<Placeholder title="Кейсы" />} />
+            <Route path="trainers" element={<Placeholder title="Тренажёры" />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+    </HashRouter>
+  );
+}
