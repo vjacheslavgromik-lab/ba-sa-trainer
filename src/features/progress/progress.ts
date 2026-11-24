@@ -5,7 +5,7 @@ const KEY = "ba-sa-progress";
 export interface CaseProgress {
   answers: Record<string, number>;
   /** Ответ на практический кейс; необязательное поле, добавлено без смены версии схемы. */
-  practice?: { answer: string; submitted: boolean };
+  practice?: { answer: string; submitted: boolean; checks?: boolean[] };
 }
 
 export interface Progress {
