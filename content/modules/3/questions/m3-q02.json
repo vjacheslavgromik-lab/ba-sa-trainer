@@ -1,0 +1,12 @@
+{
+  "id": "M3-Q02",
+  "prompt": "Как правильно выбрать студентов, у которых город не указан?",
+  "options": [
+    "WHERE city = NULL",
+    "WHERE city = ''",
+    "WHERE city IS NULL",
+    "WHERE city = 0"
+  ],
+  "correct": 2,
+  "theoryRef": "sql-basics.md#3"
+}

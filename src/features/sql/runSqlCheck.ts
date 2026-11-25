@@ -10,6 +10,8 @@ export interface SqlCheckInput {
   userQuery: string;
   /** Эталонный запрос. */
   referenceQuery: string;
+  /** Учитывать порядок строк (для кейсов с ORDER BY). */
+  ordered?: boolean;
 }
 
 let enginePromise: Promise<SqlJsStatic> | undefined;
@@ -61,7 +63,7 @@ export function runSqlCheck(engine: SqlJsStatic, input: SqlCheckInput): CompareO
       return { ok: false, message: `ошибка в запросе: ${errorText(e)}` };
     }
 
-    return compareResults(actual, expected);
+    return compareResults(actual, expected, input.ordered);
   } finally {
     db.close();
   }

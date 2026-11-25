@@ -1,0 +1,12 @@
+{
+  "id": "M3-Q03",
+  "prompt": "В каком порядке СУБД обрабатывает части запроса?",
+  "options": [
+    "SELECT, FROM, WHERE, ORDER BY",
+    "FROM, WHERE, GROUP BY, HAVING, SELECT, ORDER BY",
+    "WHERE, FROM, SELECT, GROUP BY",
+    "ORDER BY, FROM, WHERE, SELECT"
+  ],
+  "correct": 1,
+  "theoryRef": "sql-basics.md#4"
+}

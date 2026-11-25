@@ -3,13 +3,13 @@
 // сам движок передаётся снаружи (его грузит loadSqlEngine лениво).
 import type { Database, SqlJsStatic } from "sql.js";
 
-/** Учебная база для песочницы. Состав таблиц — черновик, уточняется при наполнении модуля 3 (US-8.2). */
+/** Учебная база для песочницы. Совпадает со схемой кейсов модуля 3 (US-8.2). */
 export const DEMO_SETUP = `
   CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT);
   CREATE TABLE courses (id INTEGER PRIMARY KEY, title TEXT NOT NULL, price INTEGER);
   CREATE TABLE enrollments (student_id INTEGER REFERENCES students(id), course_id INTEGER REFERENCES courses(id), grade INTEGER);
   INSERT INTO students VALUES (1, 'Анна', 'Москва'), (2, 'Борис', 'Казань'), (3, 'Вера', 'Москва'), (4, 'Глеб', NULL);
-  INSERT INTO courses VALUES (1, 'SQL для аналитиков', 15000), (2, 'Основы требований', 8000), (3, 'API и интеграции', 12000);
+  INSERT INTO courses VALUES (1, 'SQL для аналитиков', 15000), (2, 'Основы требований', 8000), (3, 'API и интеграции', 12000), (4, 'Тестирование API', 10000);
   INSERT INTO enrollments VALUES (1, 1, 5), (1, 2, 4), (2, 1, 3), (3, 3, 5), (4, 2, NULL);
 `;
 
