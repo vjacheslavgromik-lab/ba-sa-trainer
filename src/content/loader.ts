@@ -1,3 +1,5 @@
+import { parseFrontmatter } from "./validate";
+
 // Загрузка контента модулей из папки content/modules (ADR-3).
 // Теория — Markdown, кейсы и вопросы — JSON.
 
@@ -46,11 +48,28 @@ const theoryFiles = import.meta.glob("/content/modules/*/theory/*.md", {
 const caseFiles = import.meta.glob("/content/modules/*/cases/*.json", { eager: true, import: "default" }) as Record<string, CaseData>;
 const questionFiles = import.meta.glob("/content/modules/*/questions/*.json", { eager: true, import: "default" }) as Record<string, QuestionData>;
 
-export function getTheory(moduleId: string): string[] {
+/** Файлы теории модуля в порядке имён: главы нумеруют префиксом в имени файла (01-…, 02-…). */
+function theoryEntries(moduleId: string): [string, string][] {
   return Object.entries(theoryFiles)
     .filter(([path]) => path.includes(`/modules/${moduleId}/theory/`))
-    .map(([, text]) => text)
-    .sort();
+    .sort(([a], [b]) => a.localeCompare(b));
+}
+
+export function getTheory(moduleId: string): string[] {
+  return theoryEntries(moduleId).map(([, text]) => text);
+}
+
+export interface TheoryPart {
+  title: string;
+  body: string;
+}
+
+/** Главы теории модуля: заголовок из frontmatter и текст без него, по порядку файлов. */
+export function getTheoryParts(moduleId: string): TheoryPart[] {
+  return theoryEntries(moduleId).map(([, text]) => ({
+    title: parseFrontmatter(text).title?.replace(/^"|"$/g, "") ?? "",
+    body: text.replace(/^---[\s\S]*?---/, ""),
+  }));
 }
 
 export function getCases(moduleId: string): CaseData[] {
