@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
 import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, requiredCorrect, saveProgress, scoreCase, type Progress } from "../progress/progress";
@@ -8,6 +8,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+
+// Движок SQL грузится только для кейсов типа sql (US-6.5).
+const SqlCasePractice = lazy(() => import("../sql/SqlCasePractice"));
 
 export default function CasesView() {
   const { id } = useParams();
@@ -81,6 +84,7 @@ function CaseCard({ data }: { data: CaseData }) {
     if (practiceSent) persist({ practice: { answer: practiceText, submitted: true, checks: next } });
   }
 
+  const isSqlCase = data.check.type === "sql" && data.sql !== undefined;
   const doneCount = checks.filter(Boolean).length;
   const checkScore = checks.length === 0 ? 0 : doneCount / checks.length;
 
@@ -150,12 +154,12 @@ function CaseCard({ data }: { data: CaseData }) {
               <p className="feedback feedback--ok">Порог пройден. Практический кейс открыт.</p>
             ) : (
               <>
-                <p className="feedback feedback--bad">
-                  Порог не достигнут: верно {rightCount} из {total}, нужно не менее {needed}. Перечитайте теорию и пройдите вопросы заново.
-                </p>
-                <Button type="button" variant="secondary" onClick={retry}>
-                  Пройти заново
-                </Button>
+                    <p className="feedback feedback--bad">
+                      Порог не достигнут: верно {rightCount} из {total}, нужно не менее {needed}. Перечитайте теорию и пройдите вопросы заново.
+                    </p>
+                    <Button type="button" variant="secondary" onClick={retry}>
+                      Пройти заново
+                    </Button>
               </>
             )}
           </>
@@ -169,49 +173,65 @@ function CaseCard({ data }: { data: CaseData }) {
             <h4>Задание</h4>
             <p>{data.condition}</p>
 
-            <div className="practice-answer">
-              <label htmlFor={`answer-${data.id}`}>
-                <strong>Ваш ответ</strong>
-              </label>
-              <Textarea
-                id={`answer-${data.id}`}
-                rows={10}
-                value={practiceText}
-                disabled={practiceSent}
-                onChange={(e) => setPracticeText(e.target.value)}
-              />
-              {!practiceSent && (
-                <Button type="button" onClick={sendPractice} disabled={practiceText.trim().length === 0}>
-                  Отправить ответ
-                </Button>
-              )}
-            </div>
-
-            {practiceSent ? (
-              <>
-                <h4>Проверка по чек-листу</h4>
-                <p className="muted">Отметьте пункты, которые ваш ответ выполняет. Выполнено: {doneCount} из {data.checklist.length}.</p>
-                {isPassed(checkScore) ? (
-                  <p className="feedback feedback--ok">Кейс засчитан: выполнено не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
-                ) : (
-                  <p className="feedback feedback--bad">Кейс не засчитан: нужно выполнить не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
-                )}
-                <ul className="checklist">
-                  {data.checklist.map((item, i) => {
-                    const id = `${data.id}-check-${i}`;
-                    return (
-                      <li key={item} className="flex items-center gap-2 py-1">
-                        <Checkbox id={id} checked={checks[i]} onCheckedChange={(v) => toggleCheck(i, v === true)} />
-                        <Label htmlFor={id}>{item}</Label>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <h4>Эталонное решение</h4>
-                <p>{data.reference}</p>
-              </>
+            {isSqlCase ? (
+              <Suspense fallback={<p className="muted">Загрузка проверки SQL…</p>}>
+                <SqlCasePractice
+                  data={data}
+                  initialQuery={savedPractice?.answer ?? ""}
+                  solved={practiceSent}
+                  onSolved={(query) => {
+                    persist({ practice: { answer: query, submitted: true } });
+                    setPracticeSent(true);
+                  }}
+                />
+              </Suspense>
             ) : (
-              <p className="muted">Чек-лист и эталонное решение появятся после отправки ответа.</p>
+              <>
+                <div className="practice-answer">
+                  <label htmlFor={`answer-${data.id}`}>
+                    <strong>Ваш ответ</strong>
+                  </label>
+                  <Textarea
+                    id={`answer-${data.id}`}
+                    rows={10}
+                    value={practiceText}
+                    disabled={practiceSent}
+                    onChange={(e) => setPracticeText(e.target.value)}
+                  />
+                  {!practiceSent && (
+                    <Button type="button" onClick={sendPractice} disabled={practiceText.trim().length === 0}>
+                      Отправить ответ
+                    </Button>
+                  )}
+                </div>
+
+                {practiceSent ? (
+                  <>
+                    <h4>Проверка по чек-листу</h4>
+                    <p className="muted">Отметьте пункты, которые ваш ответ выполняет. Выполнено: {doneCount} из {data.checklist.length}.</p>
+                    {isPassed(checkScore) ? (
+                      <p className="feedback feedback--ok">Кейс засчитан: выполнено не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
+                    ) : (
+                      <p className="feedback feedback--bad">Кейс не засчитан: нужно выполнить не менее {Math.round(PASS_THRESHOLD * 100)}% пунктов.</p>
+                    )}
+                    <ul className="checklist">
+                      {data.checklist.map((item, i) => {
+                        const id = `${data.id}-check-${i}`;
+                        return (
+                          <li key={item} className="flex items-center gap-2 py-1">
+                            <Checkbox id={id} checked={checks[i]} onCheckedChange={(v) => toggleCheck(i, v === true)} />
+                            <Label htmlFor={id}>{item}</Label>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    <h4>Эталонное решение</h4>
+                    <p>{data.reference}</p>
+                  </>
+                ) : (
+                  <p className="muted">Чек-лист и эталонное решение появятся после отправки ответа.</p>
+                )}
+              </>
             )}
           </>
         ) : (
