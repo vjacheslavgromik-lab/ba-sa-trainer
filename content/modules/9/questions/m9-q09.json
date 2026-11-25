@@ -1,0 +1,12 @@
+{
+  "id": "M9-Q09",
+  "prompt": "Зачем в адресах запросов Postman используют переменную {{baseUrl}}?",
+  "options": [
+    "Чтобы запрос выполнялся быстрее",
+    "Чтобы сервер не проверял адрес",
+    "Чтобы сменить сервер в одном месте, а не в каждом запросе",
+    "Чтобы тело запроса стало JSON"
+  ],
+  "correct": 2,
+  "theoryRef": "Postman Learning Center, «Reuse data with variables and environments in Postman»; глава 9"
+}

@@ -52,7 +52,7 @@ describe("Postman: формат файла (US-6.2)", () => {
 describe("Postman: общие правила (US-5.2, FR-13)", () => {
   it("эталонная коллекция: нарушений 0", () => {
     const r = checkCollection(text(valid));
-    expect(r).toEqual({ ok: true, requestCount: 6, violations: [] });
+    expect(r).toEqual({ ok: true, requestCount: 9, violations: [] });
     expect(rules(valid, CASE)).toEqual([]);
   });
 
@@ -166,7 +166,7 @@ describe("Postman: правила кейса (US-5.2)", () => {
 
   it("нет обязательного запроса", () => {
     const c = clone();
-    c.item[1].item = c.item[1].item.filter((r: { name: string }) => r.name !== "Отменить запись");
+    c.item[1].item = c.item[1].item.filter((r: { name: string }) => !r.name.startsWith("Отменить"));
     const r = checkCollection(text(c), CASE);
     expect(r.ok && r.violations).toMatchObject([{ rule: "C1", message: "Нет запроса DELETE /enrollments/{id}." }]);
   });

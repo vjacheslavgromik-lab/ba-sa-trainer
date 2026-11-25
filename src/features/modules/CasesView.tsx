@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
 import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, requiredCorrect, saveProgress, scoreCase, type Progress } from "../progress/progress";
 import { InDevelopment } from "./InDevelopment";
+import PostmanCasePractice from "../postman/PostmanCasePractice";
 import { ProgressBar } from "../../shared/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,6 +87,7 @@ function CaseCard({ data }: { data: CaseData }) {
   }
 
   const isSqlCase = data.check.type === "sql" && data.sql !== undefined;
+  const isPostmanCase = data.check.type === "postman" && data.postman !== undefined;
   const doneCount = checks.filter(Boolean).length;
   const checkScore = checks.length === 0 ? 0 : doneCount / checks.length;
 
@@ -113,7 +115,7 @@ function CaseCard({ data }: { data: CaseData }) {
                 <RadioGroup
                   disabled={submitted}
                   value={answers[qid] === undefined ? undefined : String(answers[qid])}
-                  onValueChange={(v) => setAnswers({ ...answers, [qid]: Number(v) })}
+                  onValueChange={(v) => setAnswers((prev) => ({ ...prev, [qid]: Number(v) }))}
                   aria-label={q.prompt}
                 >
                   {q.options.map((opt, oi) => {
@@ -172,7 +174,17 @@ function CaseCard({ data }: { data: CaseData }) {
             <h4>Задание</h4>
             <p>{data.condition}</p>
 
-            {isSqlCase ? (
+            {isPostmanCase ? (
+              <PostmanCasePractice
+                data={data}
+                initialFileName={savedPractice?.answer ?? ""}
+                solved={practiceSent}
+                onSolved={(fileName) => {
+                  persist({ practice: { answer: fileName, submitted: true } });
+                  setPracticeSent(true);
+                }}
+              />
+            ) : isSqlCase ? (
               <Suspense fallback={<p className="muted">Загрузка проверки SQL…</p>}>
                 <SqlCasePractice
                   data={data}
