@@ -22,9 +22,10 @@ describe("Порядок и содержание теории модуля 9", (
   const parts = getTheoryParts("9");
 
   it("главы идут по порядку файлов, и первая — определение программного интерфейса", () => {
-    expect(parts).toHaveLength(9);
+    expect(parts).toHaveLength(11);
     expect(parts[0].title).toBe("Что такое программный интерфейс");
-    expect(parts.map((p) => p.title).slice(-1)[0]).toBe("Диаграмма последовательности");
+    expect(parts.map((p) => p.title).slice(-1)[0]).toBe("Словарь терминов");
+    expect(parts[7].title).toBe("Документирование API: спецификации и другие артефакты");
     expect(parts[0].body).toContain("**Определение");
     expect(parts[0].body).toContain("API");
   });
@@ -46,9 +47,9 @@ describe("Отображение теории", () => {
     window.location.hash = "#/modules/9/theory";
     render(<App />);
     const toc = await screen.findByRole("navigation", { name: "Содержание" });
-    expect(within(toc).getAllByRole("button")).toHaveLength(9);
+    expect(within(toc).getAllByRole("button")).toHaveLength(11);
     expect(screen.getByRole("heading", { level: 2, name: "Глава 1. Что такое программный интерфейс" })).toBeTruthy();
-    expect(screen.getByRole("heading", { level: 2, name: "Глава 9. Диаграмма последовательности" })).toBeTruthy();
+    expect(screen.getByRole("heading", { level: 2, name: "Глава 10. Диаграмма последовательности" })).toBeTruthy();
     // Заголовки внутри глав сдвинуты на уровень вниз: это h3, а не h2.
     expect(screen.getByRole("heading", { level: 3, name: "Пример из жизни: меню в ресторане" })).toBeTruthy();
     // Таблицы Markdown отображаются таблицами.
