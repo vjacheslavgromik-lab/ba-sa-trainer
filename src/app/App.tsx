@@ -4,12 +4,13 @@ import ModulePage from "../features/modules/ModulePage";
 import TheoryView from "../features/modules/TheoryView";
 import CasesView from "../features/modules/CasesView";
 import TrainersView from "../features/modules/TrainersView";
+import ProgressPage from "../features/progress/ProgressPage";
 
 function Home() {
   return (
     <section aria-labelledby="home-title">
       <h1 id="home-title">Освойте системный анализ по шагам</h1>
-      <p>Выберите модуль в любом порядке. Прогресс пока не сохраняется.</p>
+      <p>Выберите модуль в любом порядке. Прогресс сохраняется в этом браузере.</p>
       <NavLink to="/modules">Перейти к модулям</NavLink>
     </section>
   );
@@ -24,6 +25,7 @@ export default function App() {
         <nav aria-label="Основная навигация">
           <NavLink to="/">Главная</NavLink>
           <NavLink to="/modules">Модули</NavLink>
+          <NavLink to="/progress">Прогресс</NavLink>
         </nav>
       </header>
       <main id="main" tabIndex={-1}>
@@ -36,6 +38,7 @@ export default function App() {
             <Route path="cases" element={<CasesView />} />
             <Route path="trainers" element={<TrainersView />} />
           </Route>
+          <Route path="/progress" element={<ProgressPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
