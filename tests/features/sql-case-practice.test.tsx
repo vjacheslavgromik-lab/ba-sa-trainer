@@ -18,7 +18,13 @@ const data: CaseData = {
   checklist: ["Выбран столбец name"],
   reference: "Эталон: SELECT name FROM students WHERE city = 'Москва' ORDER BY name;",
   check: { type: "sql" },
-  sql: { setup: "CREATE TABLE t(a);", referenceQuery: "SELECT 1", ordered: true },
+  sql: {
+    setup: "CREATE TABLE t(a);",
+    referenceQuery: "SELECT 1",
+    ordered: true,
+    schema: [{ table: "students", title: "Студент", description: "Человек, который учится.", attributes: [{ name: "city", type: "TEXT", note: "город; NULL, если не указан" }] }],
+    relations: ["Один студент — много записей."],
+  },
   questions: ["M3-Q01"],
 };
 
@@ -28,6 +34,14 @@ beforeEach(() => {
 });
 
 describe("практика SQL-кейса (US-8.2)", () => {
+  it("показывает сущности, атрибуты и связи", () => {
+    render(<SqlCasePractice data={data} initialQuery="" solved={false} onSolved={() => {}} />);
+    expect(screen.getByRole("heading", { name: "Сущности и атрибуты" })).toBeTruthy();
+    expect(screen.getByRole("table", { name: "Атрибуты таблицы students" })).toBeTruthy();
+    expect(screen.getByText("город; NULL, если не указан")).toBeTruthy();
+    expect(screen.getByText("Один студент — много записей.")).toBeTruthy();
+  });
+
   it("кнопка проверки заблокирована, пока запрос пуст", () => {
     render(<SqlCasePractice data={data} initialQuery="" solved={false} onSolved={() => {}} />);
     expect((screen.getByRole("button", { name: "Проверить запрос" }) as HTMLButtonElement).disabled).toBe(true);
