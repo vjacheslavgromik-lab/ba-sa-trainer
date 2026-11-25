@@ -40,6 +40,15 @@ describe("тренажёр Postman (US-6.2)", () => {
     expect(table.textContent).toContain("нет проверки кода 404");
   });
 
+  it("в нарушении есть ссылки на источники", async () => {
+    const c = JSON.parse(validText);
+    c.item[0].item[0].request.url.raw = "{{baseUrl}}/getStudents";
+    render(<PostmanTrainerView />);
+    await upload(file(JSON.stringify(c)));
+    const link = await screen.findByRole("link", { name: /AIP-121/ });
+    expect(link.getAttribute("href")).toBe("https://google.aip.dev/121");
+  });
+
   it("после загрузки доступна кнопка «Проверить снова»", async () => {
     render(<PostmanTrainerView />);
     expect(screen.queryByRole("button", { name: "Проверить снова" })).toBeNull();

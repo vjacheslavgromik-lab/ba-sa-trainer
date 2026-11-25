@@ -147,7 +147,7 @@ export function parseCollection(text: string): ParseOutcome {
   }
   if (!isObj(data) || !isObj(data.info) || !Array.isArray(data.item)) return { ok: false, error: NOT_A_COLLECTION };
   const schema = typeof data.info.schema === "string" ? data.info.schema : "";
-  if (!/getpostman\.com\/json\/collection\/v2\.\d/.test(schema)) return { ok: false, error: NOT_A_COLLECTION };
+  if (!/(?:getpostman|postman)\.com\/json\/collection\/v2\.\d/.test(schema)) return { ok: false, error: NOT_A_COLLECTION };
   if (!/collection\/v2\.1/.test(schema)) {
     return { ok: false, error: "Поддерживается только формат Postman Collection v2.1. Экспортируйте коллекцию в v2.1." };
   }

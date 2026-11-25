@@ -35,6 +35,11 @@ describe("Postman: формат файла (US-6.2)", () => {
       expect(checkCollection(t)).toEqual({ ok: false, error: "Файл не является коллекцией Postman" });
     }
   });
+  it("принимает схему на новом домене schema.postman.com", () => {
+    const c = clone();
+    c.info.schema = "https://schema.postman.com/json/collection/v2.1.0/collection.json";
+    expect(checkCollection(text(c)).ok).toBe(true);
+  });
   it("коллекция v2.0 отклоняется с подсказкой про v2.1", () => {
     const c = clone();
     c.info.schema = "https://schema.getpostman.com/json/collection/v2.0.0/collection.json";
@@ -121,6 +126,18 @@ describe("Postman: общие правила (US-5.2, FR-13)", () => {
     expect(rules(postSingular)).toEqual(["P6"]);
   });
 
+  it("P6: camelCase и дефисы допустимы (Google AIP-122 рекомендует camelCase), подчёркивание и заглавная — нет", () => {
+    const camel = clone();
+    find(camel, "Список студентов").request.url.raw = "{{baseUrl}}/courseEnrollments";
+    expect(rules(camel)).toEqual([]);
+    const hyphen = clone();
+    find(hyphen, "Список студентов").request.url.raw = "{{baseUrl}}/course-enrollments";
+    expect(rules(hyphen)).toEqual([]);
+    const snake = clone();
+    find(snake, "Список студентов").request.url.raw = "{{baseUrl}}/course_enrollments";
+    expect(rules(snake)).toEqual(["P6"]);
+  });
+
   it("P6: не срабатывает на settings, версию, api и неправильные множественные", () => {
     const c = clone();
     find(c, "Список студентов").request.url.raw = "{{baseUrl}}/api/v1/settings";
@@ -173,5 +190,49 @@ describe("Postman: коды ответа в тестах", () => {
     expect(statusesFromScript("pm.expect(pm.response.code).to.be.oneOf([200, 204]);")).toEqual([200, 204]);
     expect(statusesFromScript("pm.response.to.be.ok;")).toEqual([200]);
     expect(statusesFromScript("console.log(1)")).toEqual([]);
+  });
+});
+
+describe("Postman: источники нарушений (FR-16)", () => {
+  const sourcesOf = (c: unknown, caseRules?: CaseRules) => {
+    const r = checkCollection(text(c), caseRules);
+    if (!r.ok) throw new Error(r.error);
+    return r.violations.map((v) => ({ rule: v.rule, sources: v.sources }));
+  };
+
+  it("у P4 есть ссылка на Postman, RFC 9110 и шаблоны интеграции со страницей", () => {
+    const c = clone();
+    delete find(c, "Список студентов").event;
+    const [v] = sourcesOf(c);
+    const joined = v.sources.map((s) => s.text).join(" | ");
+    expect(joined).toContain("Postman test script examples");
+    expect(joined).toContain("RFC 9110");
+    expect(joined).toContain("«Запрос-ответ», с. 177");
+    expect(v.sources.find((s) => s.text.includes("Postman test"))?.url).toBe(
+      "https://learning.postman.com/docs/tests-and-scripts/write-scripts/test-examples/",
+    );
+  });
+
+  it("у P6 ссылки на AIP-121 и AIP-122", () => {
+    const c = clone();
+    find(c, "Список студентов").request.url.raw = "{{baseUrl}}/getStudents";
+    const urls = sourcesOf(c)[0].sources.map((s) => s.url);
+    expect(urls).toEqual(["https://google.aip.dev/121", "https://google.aip.dev/122"]);
+  });
+
+  it("у C2 раздел RFC зависит от кода: 404 → §15.5.5, 400 → §15.5.1, прочие → §15", () => {
+    const c = clone();
+    c.item[0].item = c.item[0].item.filter((r: { name: string }) => r.name !== "Студент не найден");
+    const [v] = sourcesOf(c, { requests: [{ method: "GET", path: "/students/{id}", statuses: [404] }] });
+    expect(v.sources[0].text).toContain("§15.5.5");
+    expect(v.sources[0].url).toBe("https://www.rfc-editor.org/rfc/rfc9110.html#section-15.5.5");
+    const [w] = sourcesOf(c, { requests: [{ method: "GET", path: "/students/{id}", statuses: [418] }] });
+    expect(w.sources[0].text).toContain("§15 ");
+  });
+
+  it("у P5, C1 и C3 источников нет: подходящего раздела не нашлось", () => {
+    const c = clone();
+    find(c, "Список студентов").name = "New Request";
+    expect(sourcesOf(c)[0]).toEqual({ rule: "P5", sources: [] });
   });
 });

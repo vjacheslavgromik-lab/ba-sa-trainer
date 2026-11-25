@@ -87,7 +87,24 @@ export default function PostmanTrainerView({ caseRules }: Props) {
                       <td className="border-b px-2 py-1">{v.location === "" ? "Вся коллекция" : v.location}</td>
                       <td className="border-b px-2 py-1">
                         {v.message}
-                        {v.source && <span className="muted"> Источник: {v.source}.</span>}
+                        {v.sources.length > 0 && (
+                          <span className="muted block">
+                            Источники:{" "}
+                            {v.sources.map((src, i) => (
+                              <span key={src.text}>
+                                {i > 0 && "; "}
+                                {src.url ? (
+                                  <a href={src.url} target="_blank" rel="noreferrer">
+                                    {src.text}
+                                  </a>
+                                ) : (
+                                  src.text
+                                )}
+                              </span>
+                            ))}
+                            .
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
