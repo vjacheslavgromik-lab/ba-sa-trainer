@@ -91,7 +91,7 @@ function CaseCard({ data }: { data: CaseData }) {
   return (
     <section className="case-card" aria-label={data.title}>
       <section className="stage" aria-labelledby={`theory-check-${data.id}`}>
-        <h3 id={`theory-check-${data.id}`}>Шаг 1. Проверка теории</h3>
+        <h3 id={`theory-check-${data.id}`}>Теория</h3>
         <p className="muted">
           Ответьте на вопросы. Практический кейс откроется, если верно не менее {Math.round(PASS_THRESHOLD * 100)}%.
         </p>
@@ -165,7 +165,7 @@ function CaseCard({ data }: { data: CaseData }) {
       </section>
 
       <section className="stage" aria-labelledby={`practice-${data.id}`}>
-        <h3 id={`practice-${data.id}`}>Шаг 2. Практический кейс «{data.title}»</h3>
+        <h3 id={`practice-${data.id}`}>Практика: «{data.title}»</h3>
         {passed ? (
           <>
             <h4>Задание</h4>
