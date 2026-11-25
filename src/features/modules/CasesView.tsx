@@ -2,6 +2,7 @@ import { lazy, Suspense, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
 import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, requiredCorrect, saveProgress, scoreCase, type Progress } from "../progress/progress";
+import { InDevelopment } from "./InDevelopment";
 import { ProgressBar } from "../../shared/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,7 +17,7 @@ export default function CasesView() {
   const { id } = useParams();
   const cases = getCases(id ?? "");
   if (cases.length === 0) {
-    return <p className="muted">Кейсы для этого модуля появятся позже.</p>;
+    return <InDevelopment what="Кейсы" />;
   }
   return (
     <div className="case-list">

@@ -26,6 +26,19 @@ export const MODULES: ModuleInfo[] = [
   { id: "final", number: "—", title: "Выпускной проект", result: "Сквозной кейс: требования, процессы, данные, прототип, ПМИ", slice: false, wave: 4 },
 ];
 
+/**
+ * Опубликованные волны контента (US-8.5). Модули опубликованных волн отмечены «Доступен»,
+ * модули остальных волн — «В разработке». Новая волна включается добавлением номера.
+ */
+export const PUBLISHED_WAVES: readonly number[] = [1];
+
+export function isModulePublished(m: ModuleInfo, published: readonly number[] = PUBLISHED_WAVES): boolean {
+  return published.includes(m.wave);
+}
+
+/** Модули, у которых есть тренажёр: остальным вкладка «Тренажёры» показывает «В разработке» (US-8.4). */
+export const MODULES_WITH_TRAINER: readonly string[] = ["3", "4", "9"];
+
 export function findModule(id: string | undefined): ModuleInfo | undefined {
   return MODULES.find((m) => m.id === id);
 }

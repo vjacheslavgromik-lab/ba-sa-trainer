@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { useParams } from "react-router-dom";
-import { Placeholder } from "./Placeholder";
+import { InDevelopment } from "./InDevelopment";
 import PostmanTrainerView from "../postman/PostmanTrainerView";
 
 // Песочница и движок SQL грузятся только при открытии тренажёра модуля 3 (US-6.5, ADR-4).
@@ -26,5 +26,5 @@ export default function TrainersView() {
     );
   }
   if (id === "9") return <PostmanTrainerView />;
-  return <Placeholder title="Тренажёры" />;
+  return <InDevelopment what="Тренажёры" />;
 }
