@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
-import { MODULES, STATUS_LABEL } from "../../data/modules";
+import { MODULES, PUBLISHED_WAVES, isModulePublished } from "../../data/modules";
 import { Badge } from "@/components/ui/badge";
 
 export default function ModulesPage() {
   return (
     <section aria-labelledby="modules-title">
       <h1 id="modules-title">Модули</h1>
-      <p className="muted">Выбирайте модули в любом порядке. Статусы пока показывают только начальное состояние.</p>
+      <p className="muted">
+        Выбирайте модули в любом порядке. Модули выходят волнами: опубликованы волны {PUBLISHED_WAVES.join(", ")}, остальные
+        помечены «В разработке».
+      </p>
       <ul className="module-grid">
         {MODULES.map((m) => (
           <li key={m.id}>
@@ -16,7 +19,8 @@ export default function ModulesPage() {
               <span className="module-card__result">{m.result}</span>
               <span className="module-card__meta">
                 {m.slice && <Badge tone="info">Срез</Badge>}
-                <Badge tone="planned">{STATUS_LABEL.not_started}</Badge>
+                <Badge tone="planned">Волна {m.wave}</Badge>
+                {isModulePublished(m) ? <Badge tone="success">Доступен</Badge> : <Badge tone="planned">В разработке</Badge>}
               </span>
             </Link>
           </li>

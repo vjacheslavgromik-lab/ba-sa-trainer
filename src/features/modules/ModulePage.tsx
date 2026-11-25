@@ -1,13 +1,14 @@
 import { NavLink, Outlet, useParams } from "react-router-dom";
-import { findModule } from "../../data/modules";
+import { MODULES_WITH_TRAINER, findModule, isModulePublished } from "../../data/modules";
+import { getCases, getTheory } from "../../content/loader";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { to: "theory", label: "Теория" },
-  { to: "cases", label: "Кейсы" },
-  { to: "trainers", label: "Тренажёры" },
-];
+  { to: "theory", label: "Теория", key: "theory" },
+  { to: "cases", label: "Кейсы", key: "cases" },
+  { to: "trainers", label: "Тренажёры", key: "trainers" },
+] as const;
 
 export default function ModulePage() {
   const { id } = useParams();
@@ -21,12 +22,22 @@ export default function ModulePage() {
       </section>
     );
   }
+  // Раздел без содержимого помечается «В разработке», теория при этом остаётся доступной (US-8.4).
+  const available = {
+    theory: getTheory(module.id).length > 0,
+    cases: getCases(module.id).length > 0,
+    trainers: MODULES_WITH_TRAINER.includes(module.id),
+  };
   return (
     <section aria-labelledby="module-title">
       <p className="muted">Модуль {module.number}</p>
       <h1 id="module-title">{module.title}</h1>
       <p>{module.result}</p>
-      <p>{module.slice && <Badge tone="info">Срез</Badge>}</p>
+      <p className="flex flex-wrap gap-2">
+        {module.slice && <Badge tone="info">Срез</Badge>}
+        <Badge tone="planned">Волна {module.wave}</Badge>
+        {!isModulePublished(module) && <Badge tone="planned">Модуль в разработке</Badge>}
+      </p>
       <nav aria-label="Разделы модуля" className="tabs">
         {TABS.map((t) => (
           <NavLink
@@ -41,7 +52,8 @@ export default function ModulePage() {
               )
             }
           >
-              {t.label}
+            {t.label}
+            {!available[t.key] && <span className="ml-2 text-xs font-normal">· В разработке</span>}
           </NavLink>
         ))}
       </nav>

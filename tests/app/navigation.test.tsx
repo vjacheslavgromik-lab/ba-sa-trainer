@@ -21,14 +21,13 @@ beforeEach(() => {
 });
 
 describe("Список модулей (US-1.1)", () => {
-  it("показывает все 14 модулей со статусом «Не начат»", async () => {
+  it("показывает все 14 модулей", async () => {
     window.location.hash = "#/modules";
     render(<App />);
     const list = await screen.findByRole("list");
     const cards = within(list).getAllByRole("link");
     expect(cards).toHaveLength(MODULES.length);
     expect(MODULES).toHaveLength(14);
-    expect(screen.getAllByText("Не начат")).toHaveLength(14);
   });
 
   it("отмечает модули среза (2, 3, 9)", () => {
