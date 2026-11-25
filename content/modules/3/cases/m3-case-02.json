@@ -1,0 +1,26 @@
+{
+  "id": "M3-CASE-02",
+  "module": 3,
+  "title": "Студенты и их курсы",
+  "condition": "Выведите пары «имя студента — название курса» для всех записей на курсы. Результат: два столбца.",
+  "checklist": [
+    "Использованы все три таблицы",
+    "Условия соединения связывают внешние ключи с ключами",
+    "В результат попали только имя и название курса"
+  ],
+  "reference": "Эталон (черновик, требует рецензии): SELECT s.name, c.title FROM students s JOIN enrollments e ON e.student_id = s.id JOIN courses c ON c.id = e.course_id;",
+  "check": {
+    "type": "sql"
+  },
+  "sql": {
+    "setup": "CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT); CREATE TABLE courses (id INTEGER PRIMARY KEY, title TEXT NOT NULL, price INTEGER); CREATE TABLE enrollments (student_id INTEGER REFERENCES students(id), course_id INTEGER REFERENCES courses(id), grade INTEGER); INSERT INTO students VALUES (1, 'Анна', 'Москва'), (2, 'Борис', 'Казань'), (3, 'Вера', 'Москва'), (4, 'Глеб', NULL); INSERT INTO courses VALUES (1, 'SQL для аналитиков', 15000), (2, 'Основы требований', 8000), (3, 'API и интеграции', 12000), (4, 'Тестирование API', 10000); INSERT INTO enrollments VALUES (1, 1, 5), (1, 2, 4), (2, 1, 3), (3, 3, 5), (4, 2, NULL);",
+    "referenceQuery": "SELECT s.name, c.title FROM students s JOIN enrollments e ON e.student_id = s.id JOIN courses c ON c.id = e.course_id",
+    "ordered": false
+  },
+  "questions": [
+    "M3-Q01",
+    "M3-Q02",
+    "M3-Q03",
+    "M3-Q04"
+  ]
+}

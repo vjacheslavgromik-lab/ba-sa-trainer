@@ -17,6 +17,8 @@ export interface CaseData {
   checklist: string[];
   reference: string;
   check: { type: string };
+  /** Данные SQL-проверки; есть у кейсов с check.type = "sql". */
+  sql?: { setup: string; referenceQuery: string; ordered?: boolean };
   questions: string[];
 }
 

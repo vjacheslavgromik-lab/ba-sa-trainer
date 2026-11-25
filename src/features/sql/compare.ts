@@ -1,5 +1,6 @@
 // Сравнение результата SQL-запроса с эталоном (US-5.1, ADR-4).
-// Строки сравниваются без учёта порядка; число столбцов должно совпадать.
+// По умолчанию строки сравниваются без учёта порядка; для кейсов с ORDER BY порядок включается флагом ordered.
+// Число столбцов должно совпадать.
 
 export interface QueryResult {
   columns: string[];
@@ -15,7 +16,7 @@ function rowKey(row: unknown[]): string {
   return JSON.stringify(row);
 }
 
-export function compareResults(actual: QueryResult, expected: QueryResult): CompareOutcome {
+export function compareResults(actual: QueryResult, expected: QueryResult, ordered = false): CompareOutcome {
   if (actual.columns.length !== expected.columns.length) {
     return {
       ok: false,
@@ -28,11 +29,15 @@ export function compareResults(actual: QueryResult, expected: QueryResult): Comp
       message: `не совпало: строк в результате ${actual.rows.length}, в эталоне ${expected.rows.length}`,
     };
   }
-  const a = actual.rows.map(rowKey).sort();
-  const e = expected.rows.map(rowKey).sort();
-  const same = a.every((key, i) => key === e[i]);
-  if (!same) {
-    return { ok: false, message: "не совпало: значения строк отличаются от эталона" };
+  const a = actual.rows.map(rowKey);
+  const e = expected.rows.map(rowKey);
+  if (!ordered) {
+    a.sort();
+    e.sort();
+  }
+  if (!a.every((key, i) => key === e[i])) {
+    const hint = ordered ? " (порядок строк важен)" : "";
+    return { ok: false, message: `не совпало: значения строк отличаются от эталона${hint}` };
   }
   return { ok: true, message: "совпало" };
 }

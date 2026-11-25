@@ -43,6 +43,17 @@ describe("сравнение результатов (US-5.1)", () => {
     const actual = { columns: ["name"], rows: [["Анна"], ["Борис"], ["Вера"]] };
     expect(compareResults(actual, ref).message).toContain("столбцов");
   });
+
+  it("при ordered не принимает другой порядок строк", () => {
+    const actual = { columns: ["id", "name"], rows: [[3, "Вера"], [1, "Анна"], [2, "Борис"]] };
+    const outcome = compareResults(actual, ref, true);
+    expect(outcome.ok).toBe(false);
+    expect(outcome.message).toContain("порядок строк важен");
+  });
+
+  it("при ordered принимает тот же порядок строк", () => {
+    expect(compareResults(ref, ref, true).ok).toBe(true);
+  });
 });
 
 describe("проверка SQL на sql.js (US-5.1)", () => {

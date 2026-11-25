@@ -24,6 +24,15 @@ export function validateCase(file: string, data: unknown): ValidationError[] {
   if (!isNonEmptyString(data.reference)) err("reference", "нет эталонного решения");
   if (!isObj(data.check) || !CHECK_TYPES.includes(data.check.type as CheckType))
     err("check.type", `тип проверки должен быть одним из: ${CHECK_TYPES.join(", ")}`);
+  if (isObj(data.check) && data.check.type === "sql") {
+    if (!isObj(data.sql)) {
+      err("sql", "для проверки типа sql нужен блок sql");
+    } else {
+      if (!isNonEmptyString(data.sql.setup)) err("sql.setup", "нет скрипта тестовой базы");
+      if (!isNonEmptyString(data.sql.referenceQuery)) err("sql.referenceQuery", "нет эталонного запроса");
+      if (data.sql.ordered !== undefined && typeof data.sql.ordered !== "boolean") err("sql.ordered", "ordered должен быть true или false");
+    }
+  }
   if (!Array.isArray(data.questions) || data.questions.length === 0 || !data.questions.every(isNonEmptyString))
     err("questions", "нужен хотя бы один вопрос для гейта (ID вопросов)");
   return errs;

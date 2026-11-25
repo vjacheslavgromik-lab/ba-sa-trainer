@@ -1,0 +1,12 @@
+{
+  "id": "M3-Q07",
+  "prompt": "Нужно посчитать записавшихся студентов по каждому курсу, включая курсы без студентов. Что использовать?",
+  "options": [
+    "JOIN и COUNT(*)",
+    "LEFT JOIN от курсов к записям и COUNT(e.student_id)",
+    "WHERE e.student_id IS NOT NULL",
+    "Запрос только к таблице enrollments"
+  ],
+  "correct": 1,
+  "theoryRef": "sql-joins-aggregates.md#4"
+}

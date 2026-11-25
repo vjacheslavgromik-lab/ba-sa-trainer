@@ -1,0 +1,12 @@
+{
+  "id": "M3-Q06",
+  "prompt": "Чем HAVING отличается от WHERE?",
+  "options": [
+    "HAVING фильтрует группы после GROUP BY, WHERE фильтрует строки до группировки",
+    "HAVING выполняется до WHERE",
+    "HAVING работает только с текстовыми столбцами",
+    "Различий нет, это синонимы"
+  ],
+  "correct": 0,
+  "theoryRef": "sql-joins-aggregates.md#2"
+}
