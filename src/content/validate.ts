@@ -48,6 +48,24 @@ export function validateCase(file: string, data: unknown): ValidationError[] {
       if (data.sql.ordered !== undefined && typeof data.sql.ordered !== "boolean") err("sql.ordered", "ordered должен быть true или false");
     }
   }
+  if (isObj(data.check) && data.check.type === "postman") {
+    const rules = isObj(data.postman) && isObj(data.postman.rules) ? data.postman.rules : null;
+    if (!rules || !Array.isArray(rules.requests) || rules.requests.length === 0) {
+      err("postman.rules.requests", "для проверки типа postman нужен хотя бы один запрос в правилах");
+    } else {
+      rules.requests.forEach((r: unknown, i: number) => {
+        const ok =
+          isObj(r) &&
+          isNonEmptyString(r.method) &&
+          isNonEmptyString(r.path) &&
+          r.path.startsWith("/") &&
+          (r.statuses === undefined ||
+            (Array.isArray(r.statuses) && r.statuses.every((c) => Number.isInteger(c) && c >= 100 && c <= 599))) &&
+          (r.bodyFields === undefined || (Array.isArray(r.bodyFields) && r.bodyFields.every(isNonEmptyString)));
+        if (!ok) err(`postman.rules.requests.${i}`, "у запроса нужны method, path (с «/»), коды 100–599 и непустые поля тела");
+      });
+    }
+  }
   if (!Array.isArray(data.questions) || data.questions.length === 0 || !data.questions.every(isNonEmptyString))
     err("questions", "нужен хотя бы один вопрос для гейта (ID вопросов)");
   return errs;

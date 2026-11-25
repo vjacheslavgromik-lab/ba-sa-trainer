@@ -1,0 +1,51 @@
+{
+  "id": "M9-CASE-02",
+  "module": 9,
+  "title": "Создание и удаление: записи на курсы",
+  "condition": "Соберите в Postman коллекцию запросов, которые изменяют данные: запись студента на курс (POST /enrollments) и отмена записи (DELETE /enrollments/{id}). POST отправляет тело JSON с полями student_id и course_id и заголовок Content-Type: application/json. Проверьте коды ответа: для POST 201 при успехе и 400 при неверных данных (отдельным запросом с неверным телом), для DELETE 204 при успехе и 404, если записи нет (например, /enrollments/9999). У DELETE тела нет. Хост запишите переменной {{baseUrl}}, запросы назовите по смыслу. Экспортируйте коллекцию (Collection v2.1, JSON) и загрузите файл.",
+  "checklist": [
+    "Есть запрос POST /enrollments с телом JSON и полями student_id и course_id",
+    "Для POST проверены коды 201 и 400",
+    "Есть запрос DELETE /enrollments/{id} без тела",
+    "Для DELETE проверены коды 204 и 404",
+    "У POST указан Content-Type: application/json",
+    "Хост записан переменной {{baseUrl}}, а не адресом сервера",
+    "Запросы названы по смыслу, в путях только существительные во множественном числе"
+  ],
+  "reference": "Эталон (черновик, требует рецензии): папка «Записи». «Записать студента на курс»: POST {{baseUrl}}/enrollments, тело {\"student_id\": 1, \"course_id\": 1}, Content-Type: application/json, тест на код 201. «Запись с неверными данными»: POST {{baseUrl}}/enrollments, тело {\"student_id\": \"x\", \"course_id\": 1}, тест на код 400. «Отменить запись»: DELETE {{baseUrl}}/enrollments/:id, тест на код 204. «Отменить несуществующую запись»: DELETE {{baseUrl}}/enrollments/9999, тест на код 404.",
+  "check": {
+    "type": "postman"
+  },
+  "postman": {
+    "rules": {
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/enrollments",
+          "statuses": [
+            201,
+            400
+          ],
+          "bodyFields": [
+            "student_id",
+            "course_id"
+          ]
+        },
+        {
+          "method": "DELETE",
+          "path": "/enrollments/{id}",
+          "statuses": [
+            204,
+            404
+          ]
+        }
+      ]
+    }
+  },
+  "questions": [
+    "M9-Q05",
+    "M9-Q06",
+    "M9-Q07",
+    "M9-Q08"
+  ]
+}

@@ -26,6 +26,10 @@ export interface CaseData {
   checklist: string[];
   reference: string;
   check: { type: string };
+  /** Правила проверки Postman-коллекции; есть у кейсов с check.type = "postman". */
+  postman?: {
+    rules: { requests?: { method: string; path: string; statuses?: number[]; bodyFields?: string[] }[] };
+  };
   /** Данные SQL-проверки; есть у кейсов с check.type = "sql". */
   sql?: {
     setup: string;

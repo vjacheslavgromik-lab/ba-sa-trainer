@@ -23,7 +23,7 @@ describe("тренажёр Postman (US-6.2)", () => {
   it("верная коллекция: нарушений нет", async () => {
     render(<PostmanTrainerView />);
     await upload(file(validText));
-    expect(await screen.findByText(/Нарушений нет\. Проверено запросов: 6/)).toBeTruthy();
+    expect(await screen.findByText(/Нарушений нет\. Проверено запросов: 9/)).toBeTruthy();
     expect(screen.queryByRole("table")).toBeNull();
   });
 

@@ -1,0 +1,78 @@
+{
+  "id": "M9-CASE-03",
+  "module": 9,
+  "title": "Коллекция API школы целиком",
+  "condition": "Соберите единую коллекцию Postman для API школы по таблице операций из главы 7: GET /students (200); GET /students/{id} (200 и 404); POST /enrollments (201 и 400, тело с полями student_id и course_id); DELETE /enrollments/{id} (204 и 404); PUT /students/{id} (200 и 404, тело с полями name и city). Сгруппируйте запросы в папки «Студенты» и «Записи». Коллекция должна пройти все общие правила: у GET и DELETE нет тела, у POST и PUT есть корректное JSON-тело с Content-Type: application/json, хост записан переменной {{baseUrl}}, у каждого запроса есть тест на код ответа, запросы названы по смыслу, имена ресурсов в путях — существительные во множественном числе. Экспортируйте коллекцию (Collection v2.1, JSON) и загрузите файл.",
+  "checklist": [
+    "Есть все пять операций из таблицы API школы",
+    "Для каждой операции проверены и успешный код, и код ошибки",
+    "У POST и PUT есть корректное тело JSON и Content-Type: application/json",
+    "У GET и DELETE нет тела",
+    "Запросы разложены по папкам «Студенты» и «Записи»",
+    "Хост записан переменной {{baseUrl}}, а не адресом сервера",
+    "Запросы названы по смыслу, в путях только существительные во множественном числе"
+  ],
+  "reference": "Эталон (черновик, требует рецензии): папка «Студенты»: список студентов (GET /students, 200); студент по номеру (GET /students/:id, 200); студент не найден (GET /students/9999, 404); обновить студента (PUT /students/:id, тело {\"name\": \"Анна\", \"city\": \"Казань\"}, 200); обновить несуществующего (PUT /students/9999, 404). Папка «Записи»: записать на курс (POST /enrollments, 201); запись с неверными данными (POST /enrollments, 400); отменить запись (DELETE /enrollments/:id, 204); отменить несуществующую запись (DELETE /enrollments/9999, 404). Во всех запросах хост — {{baseUrl}}.",
+  "check": {
+    "type": "postman"
+  },
+  "postman": {
+    "rules": {
+      "requests": [
+        {
+          "method": "GET",
+          "path": "/students",
+          "statuses": [
+            200
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/students/{id}",
+          "statuses": [
+            200,
+            404
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/enrollments",
+          "statuses": [
+            201,
+            400
+          ],
+          "bodyFields": [
+            "student_id",
+            "course_id"
+          ]
+        },
+        {
+          "method": "DELETE",
+          "path": "/enrollments/{id}",
+          "statuses": [
+            204,
+            404
+          ]
+        },
+        {
+          "method": "PUT",
+          "path": "/students/{id}",
+          "statuses": [
+            200,
+            404
+          ],
+          "bodyFields": [
+            "name",
+            "city"
+          ]
+        }
+      ]
+    }
+  },
+  "questions": [
+    "M9-Q09",
+    "M9-Q10",
+    "M9-Q11",
+    "M9-Q12"
+  ]
+}
