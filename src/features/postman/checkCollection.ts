@@ -15,21 +15,57 @@ export const RULE_TITLES: Record<RuleId, string> = {
   C3: "Обязательное поле тела",
 };
 
-/**
- * Источники для ссылок на теорию (FR-16). Пока не заданы: теория модуля 9 и её источник не выбраны.
- * Ссылка показывается в результате, только если здесь указан текст.
- */
-export const RULE_SOURCES: Record<RuleId, string | null> = {
-  P1: null,
-  P2: null,
-  P3: null,
-  P4: null,
-  P5: null,
-  P6: null,
-  C1: null,
-  C2: null,
-  C3: null,
+/** Ссылка на источник (FR-16): текст и, для онлайн-документов, адрес. */
+export interface SourceRef {
+  text: string;
+  url?: string;
+}
+
+const RFC = (section: string, what: string): SourceRef => ({
+  text: `RFC 9110 «HTTP Semantics», §${section}${what ? ` (${what})` : ""}`,
+  url: `https://www.rfc-editor.org/rfc/rfc9110.html#section-${section}`,
+});
+const PATTERNS = (name: string, page: number): SourceRef => ({
+  text: `Шаблоны интеграции корпоративных приложений, «${name}», с. ${page} (по аналогии, книга об обмене сообщениями)`,
+});
+const POSTMAN_TESTS: SourceRef = {
+  text: "Postman Learning Center, «Postman test script examples», раздел «Test for a status code»",
+  url: "https://learning.postman.com/docs/tests-and-scripts/write-scripts/test-examples/",
 };
+const POSTMAN_VARIABLES: SourceRef = {
+  text: "Postman Learning Center, «Reuse data with variables and environments in Postman»",
+  url: "https://learning.postman.com/docs/use/send-requests/variables/variables-intro/",
+};
+const AIP_NOUNS: SourceRef = {
+  text: "Google API Design Guide, AIP-121 «Resource-oriented design»: ресурсы — существительные, действия — методы",
+  url: "https://google.aip.dev/121",
+};
+const AIP_NAMES: SourceRef = {
+  text: "Google API Design Guide, AIP-122 «Resource names»: коллекции — существительные во множественном числе",
+  url: "https://google.aip.dev/122",
+};
+
+/**
+ * Источники для ссылок на теорию (FR-16). Разделы RFC, Postman и Google сверены с документами;
+ * Шаблоны интеграции описывают обмен сообщениями, поэтому ссылки на них даны по аналогии.
+ * У P5, C1 и C3 источника нет: подходящего раздела не нашлось, правила задаёт курс.
+ */
+export const RULE_SOURCES: Record<RuleId, SourceRef[]> = {
+  P1: [RFC("9.3.1", "GET"), RFC("9.3.5", "DELETE"), PATTERNS("Сообщение с командой", 169), PATTERNS("Сообщение с данными документа", 171)],
+  P2: [RFC("8.3", "Content-Type"), PATTERNS("Канал недопустимых сообщений", 143)],
+  P3: [POSTMAN_VARIABLES],
+  P4: [POSTMAN_TESTS, RFC("15", "коды состояния"), PATTERNS("Запрос-ответ", 177)],
+  P5: [],
+  P6: [AIP_NOUNS, AIP_NAMES],
+  C1: [],
+  C2: [RFC("15", "коды состояния")],
+  C3: [],
+};
+
+/** Раздел RFC 9110 для кода ответа, если он есть среди сверенных; для остальных кодов — общий раздел 15. */
+const STATUS_SECTIONS: Record<number, string> = { 201: "15.3.2", 204: "15.3.5", 400: "15.5.1", 404: "15.5.5" };
+const statusSource = (code: number): SourceRef[] =>
+  STATUS_SECTIONS[code] ? [RFC(STATUS_SECTIONS[code], `${code}`)] : RULE_SOURCES.C2;
 
 /** Правила кейса (задаются данными в файле кейса, ADR-5). Путь пишется с {id} вместо параметров. */
 export interface CaseRequestRule {
@@ -51,8 +87,11 @@ export interface Violation {
   /** Путь к запросу в коллекции; пусто для нарушений уровня коллекции. */
   location: string;
   message: string;
-  source: string | null;
+  sources: SourceRef[];
 }
+
+type RawViolation = Pick<Violation, "rule" | "location" | "message"> & { sources?: SourceRef[] };
+type AddViolation = (rule: RuleId, location: string, message: string, sources?: SourceRef[]) => void;
 
 export type CheckOutcome =
   | { ok: false; error: string }
@@ -86,17 +125,24 @@ export function checkCollection(text: string, caseRules?: CaseRules): CheckOutco
   const parsed = parseCollection(text);
   if (!parsed.ok) return { ok: false, error: parsed.error };
 
-  const found: Omit<Violation, "number" | "title" | "source">[] = [];
-  const add = (rule: RuleId, location: string, message: string) => found.push({ rule, location, message });
+  const found: RawViolation[] = [];
+  const add: AddViolation = (rule, location, message, sources) => found.push({ rule, location, message, sources });
 
   for (const r of parsed.requests) checkRequest(r, add);
   if (caseRules) checkCaseRules(parsed.requests, caseRules, add);
 
-  const violations = found.map((v, i) => ({ ...v, number: i + 1, title: RULE_TITLES[v.rule], source: RULE_SOURCES[v.rule] }));
+  const violations: Violation[] = found.map((v, i) => ({
+    number: i + 1,
+    rule: v.rule,
+    title: RULE_TITLES[v.rule],
+    location: v.location,
+    message: v.message,
+    sources: v.sources ?? RULE_SOURCES[v.rule],
+  }));
   return { ok: true, requestCount: parsed.requests.length, violations };
 }
 
-function checkRequest(r: PmRequest, add: (rule: RuleId, location: string, message: string) => void): void {
+function checkRequest(r: PmRequest, add: AddViolation): void {
   // P1. Метод и тело согласованы.
   if (NO_BODY.has(r.method) && r.hasBody) add("P1", r.location, `У запроса ${r.method} не должно быть тела.`);
   if (ALLOWED_WITH_BODY.has(r.method) && !r.hasBody) add("P1", r.location, `У запроса ${r.method} нет тела.`);
@@ -131,7 +177,7 @@ function checkRequest(r: PmRequest, add: (rule: RuleId, location: string, messag
   checkResourceNames(r, add);
 }
 
-function checkResourceNames(r: PmRequest, add: (rule: RuleId, location: string, message: string) => void): void {
+function checkResourceNames(r: PmRequest, add: AddViolation): void {
   const segments = r.rawSegments;
   segments.forEach((seg, i) => {
     if (isVariableSegment(seg) || SKIP_SEGMENT.test(seg)) return;
@@ -140,8 +186,8 @@ function checkResourceNames(r: PmRequest, add: (rule: RuleId, location: string, 
       add("P6", r.location, `В пути «${seg}» глагол «${verb[1]}»: метод HTTP уже задаёт действие, имя ресурса — существительное.`);
       return;
     }
-    if (/[A-Z_]/.test(seg)) {
-      add("P6", r.location, `Путь «${seg}»: используйте строчные буквы и дефисы.`);
+    if (/^[A-Z]/.test(seg) || seg.includes("_")) {
+      add("P6", r.location, `Путь «${seg}»: имя ресурса начинается со строчной буквы и не содержит подчёркиваний.`);
     }
     const next = segments[i + 1];
     const isCollection = next !== undefined ? isVariableSegment(next) : r.method === "POST";
@@ -155,7 +201,7 @@ function checkResourceNames(r: PmRequest, add: (rule: RuleId, location: string, 
 function checkCaseRules(
   requests: PmRequest[],
   rules: CaseRules,
-  add: (rule: RuleId, location: string, message: string) => void,
+  add: AddViolation,
 ): void {
   for (const rule of rules.requests ?? []) {
     const method = rule.method.toUpperCase();
@@ -167,7 +213,7 @@ function checkCaseRules(
     }
     const asserted = new Set(matches.flatMap((r) => r.statuses));
     for (const code of rule.statuses ?? []) {
-      if (!asserted.has(code)) add("C2", matches[0].location, `Для ${label} нет проверки кода ${code}.`);
+      if (!asserted.has(code)) add("C2", matches[0].location, `Для ${label} нет проверки кода ${code}.`, statusSource(code));
     }
     for (const field of rule.bodyFields ?? []) {
       const has = matches.some((r) => {
