@@ -36,6 +36,11 @@ describe("кейсы модуля 3 (US-8.2)", () => {
     });
   }
 
+  it("вопросы проверки теории не повторяются между кейсами", () => {
+    const ids = cases.flatMap((c) => c.data.questions as string[]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
   it("описание сущностей и атрибутов совпадает с таблицами базы", () => {
     for (const c of cases) {
       const db = new engine.Database();
