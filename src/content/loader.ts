@@ -9,6 +9,13 @@ export interface QuestionData {
   theoryRef: string;
 }
 
+export interface SqlEntity {
+  table: string;
+  title: string;
+  description: string;
+  attributes: { name: string; type: string; note: string }[];
+}
+
 export interface CaseData {
   id: string;
   module: number;
@@ -18,7 +25,15 @@ export interface CaseData {
   reference: string;
   check: { type: string };
   /** Данные SQL-проверки; есть у кейсов с check.type = "sql". */
-  sql?: { setup: string; referenceQuery: string; ordered?: boolean };
+  sql?: {
+    setup: string;
+    referenceQuery: string;
+    ordered?: boolean;
+    /** Описание таблиц и атрибутов для условия задания. */
+    schema: SqlEntity[];
+    /** Связи между таблицами текстом. */
+    relations?: string[];
+  };
   questions: string[];
 }
 

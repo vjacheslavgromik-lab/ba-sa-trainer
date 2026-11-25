@@ -30,6 +30,21 @@ export function validateCase(file: string, data: unknown): ValidationError[] {
     } else {
       if (!isNonEmptyString(data.sql.setup)) err("sql.setup", "нет скрипта тестовой базы");
       if (!isNonEmptyString(data.sql.referenceQuery)) err("sql.referenceQuery", "нет эталонного запроса");
+      if (!Array.isArray(data.sql.schema) || data.sql.schema.length === 0) {
+        err("sql.schema", "нет описания таблиц и атрибутов");
+      } else {
+        data.sql.schema.forEach((e: unknown, i: number) => {
+          const ok =
+            isObj(e) &&
+            isNonEmptyString(e.table) &&
+            isNonEmptyString(e.title) &&
+            isNonEmptyString(e.description) &&
+            Array.isArray(e.attributes) &&
+            e.attributes.length > 0 &&
+            e.attributes.every((a: unknown) => isObj(a) && isNonEmptyString(a.name) && isNonEmptyString(a.type) && isNonEmptyString(a.note));
+          if (!ok) err(`sql.schema.${i}`, "у сущности нужны table, title, description и атрибуты (name, type, note)");
+        });
+      }
       if (data.sql.ordered !== undefined && typeof data.sql.ordered !== "boolean") err("sql.ordered", "ordered должен быть true или false");
     }
   }
@@ -51,7 +66,7 @@ export function validateQuestion(file: string, data: unknown): ValidationError[]
   } else if (Array.isArray(data.options) && (data.correct as number) >= data.options.length) {
     err("correct", "индекс верного ответа выходит за пределы вариантов");
   }
-  if (!isNonEmptyString(data.theoryRef)) err("theoryRef", "нет ссылки на раздел теории");
+  if (!isNonEmptyString(data.theoryRef)) err("theoryRef", "нет ссылки на источник (книга и страницы)");
   return errs;
 }
 

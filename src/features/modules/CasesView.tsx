@@ -89,9 +89,7 @@ function CaseCard({ data }: { data: CaseData }) {
   const checkScore = checks.length === 0 ? 0 : doneCount / checks.length;
 
   return (
-    <section className="case-card" aria-labelledby={`case-${data.id}`}>
-      <h2 id={`case-${data.id}`}>{data.title}</h2>
-
+    <section className="case-card" aria-label={data.title}>
       <section className="stage" aria-labelledby={`theory-check-${data.id}`}>
         <h3 id={`theory-check-${data.id}`}>Шаг 1. Проверка теории</h3>
         <p className="muted">
@@ -130,7 +128,7 @@ function CaseCard({ data }: { data: CaseData }) {
                 {submitted && (
                   <>
                     <p className={answers[qid] === q.correct ? "feedback feedback--ok" : "feedback feedback--bad"}>
-                      {answers[qid] === q.correct ? "Верно" : "Неверно"} · раздел теории: {q.theoryRef}
+                      {answers[qid] === q.correct ? "Верно" : "Неверно"} · источник: {q.theoryRef}
                     </p>
                     {answers[qid] !== q.correct && (
                       <p className="feedback">Правильный ответ: {q.options[q.correct]}</p>
@@ -167,7 +165,7 @@ function CaseCard({ data }: { data: CaseData }) {
       </section>
 
       <section className="stage" aria-labelledby={`practice-${data.id}`}>
-        <h3 id={`practice-${data.id}`}>Шаг 2. Практический кейс</h3>
+        <h3 id={`practice-${data.id}`}>Шаг 2. Практический кейс «{data.title}»</h3>
         {passed ? (
           <>
             <h4>Задание</h4>

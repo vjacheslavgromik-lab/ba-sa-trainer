@@ -36,6 +36,22 @@ describe("кейсы модуля 3 (US-8.2)", () => {
     });
   }
 
+  it("описание сущностей и атрибутов совпадает с таблицами базы", () => {
+    for (const c of cases) {
+      const db = new engine.Database();
+      db.exec(c.data.sql.setup);
+      const actual: Record<string, string[]> = {};
+      for (const t of db.exec("SELECT name FROM sqlite_master WHERE type = 'table'")[0].values) {
+        const table = String(t[0]);
+        actual[table] = db.exec(`PRAGMA table_info(${table})`)[0].values.map((r) => `${r[1]} ${r[2]}`);
+      }
+      db.close();
+      const described: Record<string, string[]> = {};
+      for (const e of c.data.sql.schema) described[e.table] = e.attributes.map((a: { name: string; type: string }) => `${a.name} ${a.type}`);
+      expect(described, c.data.id).toEqual(actual);
+    }
+  });
+
   it("кейс 3 возвращает курс без студентов с нулём, кейс 4 отсекает студента без оценок", () => {
     const get = (id: string) => cases.find((c) => c.data.id === id)!.data.sql;
     const rows = (s: { setup: string; referenceQuery: string }) => {

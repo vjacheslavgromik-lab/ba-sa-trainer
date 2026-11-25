@@ -44,6 +44,44 @@ export default function SqlCasePractice({ data, initialQuery, solved, onSolved }
 
   return (
     <div className="practice-answer">
+      <section aria-labelledby={`schema-${data.id}`} className="py-2">
+        <h4 id={`schema-${data.id}`}>Сущности и атрибуты</h4>
+        {sql.schema.map((entity) => (
+          <div key={entity.table} className="py-1">
+            <p>
+              <strong className="font-mono">{entity.table}</strong> — {entity.title}. {entity.description}
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <caption className="sr-only">Атрибуты таблицы {entity.table}</caption>
+                <thead>
+                  <tr>
+                    <th scope="col" className="border-b px-2 py-1 text-left font-semibold">Атрибут</th>
+                    <th scope="col" className="border-b px-2 py-1 text-left font-semibold">Тип</th>
+                    <th scope="col" className="border-b px-2 py-1 text-left font-semibold">Описание</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entity.attributes.map((a) => (
+                    <tr key={a.name}>
+                      <td className="border-b px-2 py-1 font-mono">{a.name}</td>
+                      <td className="border-b px-2 py-1 font-mono">{a.type}</td>
+                      <td className="border-b px-2 py-1">{a.note}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))}
+        {sql.relations && sql.relations.length > 0 && (
+          <ul className="list-disc pl-5 text-sm">
+            {sql.relations.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
+      </section>
       <Label htmlFor={`sql-answer-${data.id}`}>
         <strong>Ваш запрос</strong>
       </Label>

@@ -8,5 +8,5 @@
     "ORDER BY, FROM, WHERE, SELECT"
   ],
   "correct": 1,
-  "theoryRef": "sql-basics.md#4"
+  "theoryRef": "Коннолли, Бегг, с. 170–171"
 }
