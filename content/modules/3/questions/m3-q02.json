@@ -8,5 +8,5 @@
     "WHERE city = 0"
   ],
   "correct": 2,
-  "theoryRef": "sql-basics.md#3"
+  "theoryRef": "Коннолли, Бегг, с. 128–129, 179"
 }

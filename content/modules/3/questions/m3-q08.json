@@ -8,5 +8,5 @@
     "Только столбцы с первичным ключом"
   ],
   "correct": 1,
-  "theoryRef": "sql-joins-aggregates.md#2"
+  "theoryRef": "Коннолли, Бегг, с. 184–185"
 }

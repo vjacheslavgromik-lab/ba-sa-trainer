@@ -51,7 +51,7 @@ export function validateQuestion(file: string, data: unknown): ValidationError[]
   } else if (Array.isArray(data.options) && (data.correct as number) >= data.options.length) {
     err("correct", "индекс верного ответа выходит за пределы вариантов");
   }
-  if (!isNonEmptyString(data.theoryRef)) err("theoryRef", "нет ссылки на раздел теории");
+  if (!isNonEmptyString(data.theoryRef)) err("theoryRef", "нет ссылки на источник (книга и страницы)");
   return errs;
 }
 

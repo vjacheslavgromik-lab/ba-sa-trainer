@@ -8,5 +8,5 @@
     "Запрос только к таблице enrollments"
   ],
   "correct": 1,
-  "theoryRef": "sql-joins-aggregates.md#4"
+  "theoryRef": "Коннолли, Бегг, с. 182, 197"
 }
