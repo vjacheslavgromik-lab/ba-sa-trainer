@@ -45,16 +45,16 @@ describe("страница кейсов модуля 9 (US-8.3)", () => {
     for (const c of getCases("9")) expect(screen.getByRole("heading", { name: `Практика: «${c.title}»` })).toBeTruthy();
   });
 
-  it("без прохождения теории практика закрыта; две ошибки из четырёх оставляют её закрытой", async () => {
+  it("без прохождения теории практика закрыта; две ошибки из шести оставляют её закрытой", async () => {
     render(<App />);
     await screen.findAllByRole("heading", { level: 3, name: "Теория" });
     expect(screen.queryByLabelText("Ваша коллекция Postman")).toBeNull();
     const card = await passGate("M9-CASE-01", 2);
-    expect(within(card).getByText(/Порог не достигнут: верно 2 из 4, нужно не менее 3/)).toBeTruthy();
+    expect(within(card).getByText(/Порог не достигнут: верно 4 из 6, нужно не менее 5/)).toBeTruthy();
     expect(screen.queryByLabelText("Ваша коллекция Postman")).toBeNull();
   });
 
-  it("с одной ошибкой из четырёх порог 75% проходится", async () => {
+  it("с одной ошибкой из шести порог 75% проходится", async () => {
     render(<App />);
     await screen.findAllByRole("heading", { level: 3, name: "Теория" });
     const card = await passGate("M9-CASE-01", 1);
