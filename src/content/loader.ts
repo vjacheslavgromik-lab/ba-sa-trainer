@@ -30,6 +30,13 @@ export interface CaseData {
   postman?: {
     rules: { requests?: { method: string; path: string; statuses?: number[]; bodyFields?: string[] }[] };
   };
+  /** Правила проверки ER-диаграммы; есть у кейсов с check.type = "er". */
+  er?: {
+    rules: {
+      entities: { id: string; label: string; names: string[]; attributes?: { label: string; names: string[] }[] }[];
+      relations?: { from: string; to: string; kind: "one-to-many" | "one-to-one"; label: string }[];
+    };
+  };
   /** Данные SQL-проверки; есть у кейсов с check.type = "sql". */
   sql?: {
     setup: string;

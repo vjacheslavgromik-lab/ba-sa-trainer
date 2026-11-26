@@ -66,6 +66,45 @@ export function validateCase(file: string, data: unknown): ValidationError[] {
       });
     }
   }
+  if (isObj(data.check) && data.check.type === "er") {
+    const rules = isObj(data.er) && isObj(data.er.rules) ? data.er.rules : null;
+    const ids = new Set<string>();
+    if (!rules || !Array.isArray(rules.entities) || rules.entities.length === 0) {
+      err("er.rules.entities", "для проверки типа er нужна хотя бы одна сущность в правилах");
+    } else {
+      rules.entities.forEach((e: unknown, i: number) => {
+        const attrsOk = (a: unknown) =>
+          a === undefined ||
+          (Array.isArray(a) &&
+            a.every((x: unknown) => isObj(x) && isNonEmptyString(x.label) && Array.isArray(x.names) && x.names.length > 0 && x.names.every(isNonEmptyString)));
+        const ok =
+          isObj(e) &&
+          isNonEmptyString(e.id) &&
+          isNonEmptyString(e.label) &&
+          Array.isArray(e.names) &&
+          e.names.length > 0 &&
+          e.names.every(isNonEmptyString) &&
+          attrsOk(e.attributes);
+        if (!ok) err(`er.rules.entities.${i}`, "у сущности нужны id, label, names и (необязательно) attributes с label и names");
+        else ids.add(e.id as string);
+      });
+      if (rules.relations !== undefined) {
+        if (!Array.isArray(rules.relations)) err("er.rules.relations", "relations должен быть массивом");
+        else
+          rules.relations.forEach((r: unknown, i: number) => {
+            const ok =
+              isObj(r) &&
+              typeof r.from === "string" &&
+              ids.has(r.from) &&
+              typeof r.to === "string" &&
+              ids.has(r.to) &&
+              (r.kind === "one-to-many" || r.kind === "one-to-one") &&
+              isNonEmptyString(r.label);
+            if (!ok) err(`er.rules.relations.${i}`, "у связи нужны from и to (id сущностей), kind (one-to-many или one-to-one) и label");
+          });
+      }
+    }
+  }
   if (!Array.isArray(data.questions) || data.questions.length === 0 || !data.questions.every(isNonEmptyString))
     err("questions", "нужен хотя бы один вопрос для гейта (ID вопросов)");
   return errs;

@@ -1,0 +1,32 @@
+erDiagram
+  CUSTOMER ||--o{ RENTAL : "оформляет"
+  RENTAL ||--|{ RENTAL_ITEM : "включает"
+  EQUIPMENT ||--o{ RENTAL_ITEM : "сдаётся в"
+  EQUIPMENT_TYPE ||--o{ EQUIPMENT : "объединяет"
+  CUSTOMER {
+    int id PK
+    string name
+    string phone UK
+  }
+  RENTAL {
+    int id PK
+    int customer_id FK
+    date start_date
+    date end_date
+  }
+  RENTAL_ITEM {
+    int rental_id PK, FK
+    int equipment_id PK, FK
+    int deposit
+  }
+  EQUIPMENT {
+    int id PK
+    string inventory_number UK
+    int equipment_type_id FK
+    string title
+    int price_per_day
+  }
+  EQUIPMENT_TYPE {
+    int id PK
+    string title
+  }
