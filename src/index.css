@@ -130,3 +130,5 @@ main {
 .case-condition table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: var(--space-3) 0; font-size: 14px; }
 .case-condition th, .case-condition td { border: 1px solid var(--border-default); padding: var(--space-1) var(--space-2); text-align: left; vertical-align: top; }
 .case-condition th { background: var(--bg-muted); font-weight: 600; }
+.case-condition pre { overflow-x: auto; margin: var(--space-3) 0; padding: var(--space-3); background: var(--bg-muted); border-radius: 6px; font-size: 13px; }
+.case-condition ul { padding-left: var(--space-5); margin: var(--space-2) 0; }
