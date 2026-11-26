@@ -254,7 +254,9 @@ function CaseCard({ data }: { data: CaseData }) {
                       })}
                     </ul>
                     <h4>Эталонное решение</h4>
-                    <p>{data.reference}</p>
+                    <div className="case-condition">
+                      <Markdown remarkPlugins={[remarkGfm]}>{data.reference}</Markdown>
+                    </div>
                   </>
                 ) : (
                   <p className="muted">Чек-лист и эталонное решение появятся после отправки ответа.</p>
