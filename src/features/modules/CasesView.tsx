@@ -1,9 +1,12 @@
 import { lazy, Suspense, useMemo, useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useParams } from "react-router-dom";
 import { getCases, getQuestion, type CaseData } from "../../content/loader";
 import { PASS_THRESHOLD, emptyProgress, isPassed, loadProgress, requiredCorrect, saveProgress, scoreCase, type Progress } from "../progress/progress";
 import { InDevelopment } from "./InDevelopment";
 import PostmanCasePractice from "../postman/PostmanCasePractice";
+import ErCasePractice from "../er/ErCasePractice";
 import { ProgressBar } from "../../shared/ui/ProgressBar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -88,6 +91,7 @@ function CaseCard({ data }: { data: CaseData }) {
 
   const isSqlCase = data.check.type === "sql" && data.sql !== undefined;
   const isPostmanCase = data.check.type === "postman" && data.postman !== undefined;
+  const isErCase = data.check.type === "er" && data.er !== undefined;
   const doneCount = checks.filter(Boolean).length;
   const checkScore = checks.length === 0 ? 0 : doneCount / checks.length;
 
@@ -172,9 +176,22 @@ function CaseCard({ data }: { data: CaseData }) {
         {passed ? (
           <>
             <h4>Задание</h4>
-            <p>{data.condition}</p>
+            {/* Условие может содержать таблицу данных и абзацы: выводим как Markdown. */}
+            <div className="case-condition">
+              <Markdown remarkPlugins={[remarkGfm]}>{data.condition}</Markdown>
+            </div>
 
-            {isPostmanCase ? (
+            {isErCase ? (
+              <ErCasePractice
+                data={data}
+                initialText={savedPractice?.answer ?? ""}
+                solved={practiceSent}
+                onSolved={(text) => {
+                  persist({ practice: { answer: text, submitted: true } });
+                  setPracticeSent(true);
+                }}
+              />
+            ) : isPostmanCase ? (
               <PostmanCasePractice
                 data={data}
                 initialFileName={savedPractice?.answer ?? ""}
