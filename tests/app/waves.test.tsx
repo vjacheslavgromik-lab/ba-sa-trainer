@@ -83,14 +83,14 @@ describe("Статус «В разработке» (US-8.4)", () => {
     expect(tab(nav, "Кейсы").textContent).not.toContain("В разработке");
   });
 
-  it("модуль 4 из волны 2: тренажёр ER доступен, теории и кейсов нет", async () => {
+  it("модуль 4 из волны 2: теория и тренажёр ER доступны, кейсов пока нет", async () => {
     expect(MODULES_WITH_TRAINER).toContain("4");
     expect(findModule("4")?.wave).toBe(2);
     window.location.hash = "#/modules/4";
     render(<App />);
     const nav = await screen.findByRole("navigation", { name: "Разделы модуля" });
     expect(tab(nav, "Тренажёры").textContent).not.toContain("В разработке");
-    expect(tab(nav, "Теория").textContent).toContain("В разработке");
+    expect(tab(nav, "Теория").textContent).not.toContain("В разработке");
     expect(tab(nav, "Кейсы").textContent).toContain("В разработке");
   });
 
