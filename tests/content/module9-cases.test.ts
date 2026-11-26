@@ -30,12 +30,12 @@ describe("Кейсы модуля 9 (US-8.3)", () => {
     }
   });
 
-  it("у каждого кейса четыре своих вопроса, они не повторяются между кейсами и существуют", () => {
+  it("у каждого кейса шесть своих вопросов, они не повторяются между кейсами и существуют", () => {
     const all = cases.flatMap((c) => c.questions);
-    expect(all).toHaveLength(16);
-    expect(new Set(all).size).toBe(16);
+    expect(all).toHaveLength(24);
+    expect(new Set(all).size).toBe(24);
     for (const c of cases) {
-      expect(c.questions).toHaveLength(4);
+      expect(c.questions).toHaveLength(6);
       for (const id of c.questions) {
         const q = getQuestion(id);
         expect(q, id).toBeTruthy();
@@ -46,6 +46,23 @@ describe("Кейсы модуля 9 (US-8.3)", () => {
         expect(q?.theoryRef).toMatch(/глава \d+/);
       }
     }
+  });
+
+  it("вопросы охватывают главы теории: 1–6 и 8–10 (глава 7 — сама практика проектирования)", () => {
+    const refs = cases.flatMap((c) => c.questions).map((id) => getQuestion(id)?.theoryRef ?? "");
+    for (const chapter of [1, 2, 3, 4, 5, 6, 8, 9, 10]) {
+      expect(refs.some((r) => new RegExp(`глава ${chapter}(?!\\d)`).test(r)), `глава ${chapter}`).toBe(true);
+    }
+  });
+
+  it("правильный ответ не выделяется длиной: самым длинным он бывает не чаще чем в 40% вопросов", () => {
+    const ids = cases.flatMap((c) => c.questions);
+    const longest = ids.filter((id) => {
+      const q = getQuestion(id)!;
+      const lengths = q.options.map((o) => o.length);
+      return lengths.indexOf(Math.max(...lengths)) === q.correct;
+    });
+    expect(longest.length / ids.length).toBeLessThanOrEqual(0.4);
   });
 
   it("правильные ответы разложены по разным позициям, а не всегда на первой", () => {

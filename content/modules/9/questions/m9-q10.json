@@ -3,9 +3,9 @@
   "prompt": "Какая строка в тесте Postman проверяет, что код ответа равен 404?",
   "options": [
     "pm.response.to.have.status(404);",
-    "pm.response.status = 404;",
-    "pm.send(404);",
-    "pm.test(404);"
+    "pm.expect(response).status(404);",
+    "pm.response.assert.code(404);",
+    "pm.test.status.equals(404);"
   ],
   "correct": 0,
   "theoryRef": "Postman Learning Center, «Postman test script examples»; глава 9"
