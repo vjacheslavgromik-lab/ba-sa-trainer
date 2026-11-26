@@ -76,6 +76,7 @@ function CaseCard({ data }: { data: CaseData }) {
   function retry() {
     setAnswers({});
     setSubmitted(false);
+    persist({ answers: {} });
   }
 
   function sendPractice() {
