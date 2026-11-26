@@ -23,6 +23,7 @@ describe("Теория модуля 9: расшифровка терминов (
     ["SQL", "Structured Query Language"],
     ["RPC", "Remote Procedure Call"],
     ["UML", "Unified Modeling Language"],
+    ["WSDL", "Web Services Description Language"],
   ];
 
   for (const [abbr, full] of EXPANSIONS) {
