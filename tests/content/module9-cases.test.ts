@@ -30,12 +30,13 @@ describe("Кейсы модуля 9 (US-8.3)", () => {
     }
   });
 
-  it("у каждого кейса шесть своих вопросов, они не повторяются между кейсами и существуют", () => {
+  it("у каждого кейса свои вопросы (не меньше шести), они не повторяются между кейсами и существуют", () => {
     const all = cases.flatMap((c) => c.questions);
-    expect(all).toHaveLength(24);
-    expect(new Set(all).size).toBe(24);
+    expect(all).toHaveLength(25);
+    expect(new Set(all).size).toBe(25);
+    expect(cases.map((c) => c.questions.length)).toEqual([6, 6, 7, 6]);
     for (const c of cases) {
-      expect(c.questions).toHaveLength(6);
+      expect(c.questions.length).toBeGreaterThanOrEqual(6);
       for (const id of c.questions) {
         const q = getQuestion(id);
         expect(q, id).toBeTruthy();
