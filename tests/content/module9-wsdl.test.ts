@@ -6,7 +6,7 @@ const soap = getTheoryParts("9").find((p) => p.title.startsWith("SOAP"))!;
 const documenting = getTheoryParts("9").find((p) => p.title.startsWith("Документирование API"))!;
 const glossary = getTheoryParts("9").slice(-1)[0];
 
-const xmlBlocks = [...soap.body.matchAll(/```xml\n([\s\S]*?)```/g)].map((m) => m[1]);
+const xmlBlocks = [...soap.body.matchAll(/```xml(?: file=\S+)?\n([\s\S]*?)```/g)].map((m) => m[1]);
 const parse = (xml: string) => new DOMParser().parseFromString(xml, "application/xml");
 const WSDL_NS = "http://schemas.xmlsoap.org/wsdl/";
 const SOAP_NS = "http://schemas.xmlsoap.org/wsdl/soap/";
@@ -65,6 +65,10 @@ describe("Теория модуля 9: WSDL (рецензия)", () => {
     const schema = wsdl.getElementsByTagName("xsd:schema")[0];
     expect(schema.getAttribute("elementFormDefault")).toBe("qualified");
     expect([...schema.children].map((e) => e.getAttribute("name"))).toContain("GetStudent");
+  });
+
+  it("пример WSDL оформлен как скачиваемый документ school.wsdl", () => {
+    expect(soap.body).toContain("```xml file=school.wsdl");
   });
 
   it("глава 8 сравнивает WSDL и OpenAPI, а словарь содержит WSDL", () => {

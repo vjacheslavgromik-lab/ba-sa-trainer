@@ -68,9 +68,9 @@ reviewStatus: draft
 
 ### Пример для API школы
 
-Вот описание той же операции «получить студента», которую мы вызывали SOAP-запросом выше:
+Вот описание той же операции «получить студента», которую мы вызывали SOAP-запросом выше. Это готовый документ, его можно скачать кнопкой под заголовком блока:
 
-```xml
+```xml file=school.wsdl
 <definitions name="SchoolService"
     targetNamespace="https://school.example/students"
     xmlns="http://schemas.xmlsoap.org/wsdl/"
