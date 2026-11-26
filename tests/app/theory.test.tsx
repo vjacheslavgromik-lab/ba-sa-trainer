@@ -71,6 +71,35 @@ describe("Отображение теории", () => {
     expect(window.location.hash).toBe("#/modules/9/theory");
   });
 
+  it("блок-документ в теории: подпись с именем файла и кнопка скачивания отдаёт текст документа", async () => {
+    let blob: Blob | undefined;
+    URL.createObjectURL = vi.fn((b: Blob | MediaSource) => {
+      blob = b as Blob;
+      return "blob:test";
+    });
+    URL.revokeObjectURL = vi.fn();
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    window.location.hash = "#/modules/9/theory";
+    render(<App />);
+    const button = await screen.findByRole("button", { name: "Скачать school-api.openapi.yaml" });
+    expect(screen.getByRole("button", { name: "Скачать school.wsdl" })).toBeTruthy();
+    expect(document.body.textContent).not.toContain("file=school-api.openapi.yaml");
+    await userEvent.click(button);
+    expect(click).toHaveBeenCalledTimes(1);
+    const text = await blob!.text();
+    expect(text.startsWith("openapi: 3.1.1")).toBe(true);
+    expect(text.endsWith("\n")).toBe(true);
+    expect(blob!.type).toBe("application/yaml");
+    click.mockRestore();
+  });
+
+  it("обычные блоки кода без file= выводятся без кнопки скачивания", async () => {
+    window.location.hash = "#/modules/9/theory";
+    render(<App />);
+    await screen.findByRole("button", { name: "Скачать school-api.openapi.yaml" });
+    expect(screen.getAllByRole("button", { name: /^Скачать / })).toHaveLength(2);
+  });
+
   it("теория с одной главой (модуль 2) отображается без содержания, как раньше", async () => {
     window.location.hash = "#/modules/2/theory";
     render(<App />);

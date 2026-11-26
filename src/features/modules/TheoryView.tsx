@@ -3,9 +3,32 @@ import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getTheoryParts } from "../../content/loader";
 import { InDevelopment } from "./InDevelopment";
+import { DownloadableCode } from "./DownloadableCode";
+
+/**
+ * Блок кода с пометкой file=имя в строке языка (```yaml file=api.yaml) — готовый документ:
+ * для него показываются имя файла и кнопка «Скачать». Остальные блоки кода выводятся как обычно.
+ */
+const COMMON: Components = {
+  pre: ({ node, children }) => {
+    const code = node?.children[0];
+    const meta = code && code.type === "element" ? (code.data as { meta?: string } | undefined)?.meta : undefined;
+    const filename = /(?:^|\s)file=(\S+)/.exec(meta ?? "")?.[1];
+    const first = code && code.type === "element" ? code.children[0] : undefined;
+    const text = first && first.type === "text" ? first.value : "";
+    return filename ? (
+      <DownloadableCode filename={filename} text={text}>
+        {children}
+      </DownloadableCode>
+    ) : (
+      <pre>{children}</pre>
+    );
+  },
+};
 
 // В многоглавной теории заголовок главы — h2, поэтому заголовки внутри глав сдвигаются на уровень вниз.
 const DEMOTED: Components = {
+  ...COMMON,
   h2: ({ children }) => <h3>{children}</h3>,
   h3: ({ children }) => <h4>{children}</h4>,
 };
@@ -45,7 +68,7 @@ export default function TheoryView() {
               Глава {i + 1}. {p.title}
             </h2>
           )}
-          <Markdown remarkPlugins={[remarkGfm]} components={chapters ? DEMOTED : undefined}>
+          <Markdown remarkPlugins={[remarkGfm]} components={chapters ? DEMOTED : COMMON}>
             {p.body}
           </Markdown>
         </section>

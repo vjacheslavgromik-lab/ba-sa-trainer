@@ -166,6 +166,203 @@ components:
 
 В этой главе использована версия 3.1.1. У стандарта есть и более новые версии, например 3.2; основные понятия те же.
 
+### Полный пример: спецификация API школы
+
+Фрагмент выше показывает идею. Настоящая спецификация — это **целый документ**, в котором описаны все операции API. Вот полная спецификация API школы в стандарте OpenAPI 3.1.1. Её можно прочитать здесь, а кнопка «Скачать файл» сохранит готовый файл, который открывается в любом текстовом редакторе:
+
+```yaml file=school-api.openapi.yaml
+openapi: 3.1.1
+info:
+  title: API школы
+  version: 1.0.0
+  description: "Учебный API школы: студенты и записи студентов на курсы."
+servers:
+  - url: https://school.example/api
+    description: Тестовый сервер
+paths:
+  /students:
+    get:
+      operationId: listStudents
+      summary: Получить список студентов
+      tags: [Студенты]
+      responses:
+        "200":
+          description: Список студентов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Student"
+  /students/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Номер студента
+        schema:
+          type: integer
+    get:
+      operationId: getStudent
+      summary: Получить студента по номеру
+      tags: [Студенты]
+      responses:
+        "200":
+          description: Студент найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Студента с таким номером нет
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      operationId: updateStudent
+      summary: Обновить данные студента
+      tags: [Студенты]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+            example:
+              name: Анна
+              city: Казань
+      responses:
+        "200":
+          description: Данные обновлены
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        "404":
+          description: Студента с таким номером нет
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /enrollments:
+    post:
+      operationId: createEnrollment
+      summary: Записать студента на курс
+      tags: [Записи]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EnrollmentRequest"
+            example:
+              student_id: 1
+              course_id: 2
+      responses:
+        "201":
+          description: Запись создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Enrollment"
+        "400":
+          description: Данные неверны
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /enrollments/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Номер записи
+        schema:
+          type: integer
+    delete:
+      operationId: cancelEnrollment
+      summary: Отменить запись на курс
+      tags: [Записи]
+      responses:
+        "204":
+          description: Запись отменена
+        "404":
+          description: Записи с таким номером нет
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Student:
+      type: object
+      required: [id, name]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: [string, "null"]
+          description: Город; пусто, если не указан
+    StudentUpdate:
+      type: object
+      required: [name, city]
+      properties:
+        name:
+          type: string
+        city:
+          type: [string, "null"]
+    EnrollmentRequest:
+      type: object
+      required: [student_id, course_id]
+      properties:
+        student_id:
+          type: integer
+        course_id:
+          type: integer
+    Enrollment:
+      type: object
+      required: [id, student_id, course_id]
+      properties:
+        id:
+          type: integer
+          description: Номер записи
+        student_id:
+          type: integer
+        course_id:
+          type: integer
+        grade:
+          type: [integer, "null"]
+          description: Оценка; пусто, если не выставлена
+    Error:
+      type: object
+      required: [message]
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+```
+
+**Что появилось по сравнению с фрагментом**
+
+- **`servers`** — адрес, по которому работает API. У сервера обязателен `url`; описание необязательно. Если `servers` не указан, считается адрес `/`.
+- **`operationId`** — имя операции, которое должно быть **уникальным** во всём API (с учётом регистра). По нему инструменты и разработчики ссылаются на операцию: `listStudents`, `getStudent`, `cancelEnrollment`.
+- **`tags`** — группы операций для документации: «Студенты» и «Записи».
+- **`parameters` на уровне пути.** Номер студента `id` описан один раз для пути `/students/{id}` и действует для всех его операций, `get` и `put`.
+- **`requestBody`** — тело запроса. В нём обязателен `content`, а флаг `required: true` говорит, что тело обязательно (по умолчанию оно необязательно). Рядом с описанием схемы стоит пример (`example`).
+- **Ответ-массив:** для `GET /students` схема описывает массив (`type: array`), элементы которого ссылаются на схему `Student`.
+- **Схема `Error`** описывает тело ответа с ошибкой, и на неё ссылаются ответы 400 и 404.
+
+**Как проверить, что документ согласован с остальными артефактами**
+
+1. Операции совпадают с таблицей из главы 7: пять операций, те же методы и адреса.
+2. Коды ответа совпадают: 200, 404 для получения; 200, 404 для обновления; 201, 400 для записи; 204, 404 для отмены.
+3. Обязательные поля тел совпадают с описанием данных: `student_id` и `course_id` для записи, `name` и `city` для обновления.
+4. Имена `operationId` не повторяются, а все `$ref` ведут на существующие схемы.
+
 ### А что для SOAP: WSDL
 
 OpenAPI описывает REST API. У SOAP-служб есть своя спецификация: документ WSDL (глава 5). Сравним их по смыслу (сравнение составлено для курса):

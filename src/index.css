@@ -119,3 +119,8 @@ main {
 .theory-toc { margin-bottom: var(--space-6); }
 .theory-toc h2 { margin-top: 0; font-size: 20px; }
 .theory-toc button { background: none; border: 0; padding: 0; color: var(--accent-primary); text-decoration: underline; cursor: pointer; font: inherit; text-align: left; }
+
+/* Блок-документ в теории: подпись с именем файла и кнопкой «Скачать». */
+.code-doc { margin: var(--space-4) 0; }
+.code-doc figcaption { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-2); font-size: 14px; color: var(--text-secondary); }
+.code-doc pre { margin: 0; }
