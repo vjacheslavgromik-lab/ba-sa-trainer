@@ -46,7 +46,7 @@ const NAME = String.raw`(?:"[^"]+"|${WORD})`;
 const RELATION = new RegExp(String.raw`^(${NAME})\s+([|}][|o])(--|\.\.)([|o][|{])\s+(${NAME})\s*(?::\s*(.*))?$`, "u");
 const ENTITY_OPEN = new RegExp(String.raw`^(${NAME})\s*(?:\[[^\]]*\])?\s*\{\s*(\})?$`, "u");
 const ATTRIBUTE = new RegExp(
-  String.raw`^([\p{L}_][\p{L}\p{N}_()[\],-]*)\s+(${WORD})(?:\s+((?:PK|FK|UK)(?:\s*,\s*(?:PK|FK|UK))*))?(?:\s+"([^"]*)")?$`,
+  String.raw`^([\p{L}_][\p{L}\p{N}_()[\],-]*\??)\s+(\*?${WORD})(?:\s+((?:PK|FK|UK)(?:\s*,\s*(?:PK|FK|UK))*))?(?:\s+"([^"]*)")?$`,
   "u",
 );
 
@@ -92,7 +92,10 @@ export function parseEr(source: string): ErModel {
         return;
       }
       const keys = m[3] ? (m[3].split(",").map((k) => k.trim()) as ErKey[]) : [];
-      current.attributes.push({ type: m[1], name: m[2], keys, ...(m[4] !== undefined ? { comment: m[4] } : {}) });
+      // Звёздочка перед именем в Mermaid — маркер первичного ключа.
+      const star = m[2].startsWith("*");
+      if (star && !keys.includes("PK")) keys.unshift("PK");
+      current.attributes.push({ type: m[1], name: star ? m[2].slice(1) : m[2], keys, ...(m[4] !== undefined ? { comment: m[4] } : {}) });
       return;
     }
     const rel = RELATION.exec(text);

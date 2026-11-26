@@ -16,9 +16,12 @@ export interface ErCheckResult {
   remarks: ErRemark[];
 }
 
-const SRC_KEYS = "Коннолли, Бегг, с. 124–125";
+const SRC_KEYS = "Коннолли, Бегг, с. 124–125 и 408–410";
 const SRC_REFINT = "Коннолли, Бегг, с. 129–130";
-const SRC_ER = "Коннолли, Бегг, гл. 11, с. 397–428";
+const SRC_ER = "Коннолли, Бегг, гл. 11, с. 398–409";
+const SRC_MANY = "Коннолли, Бегг, с. 412–416 и 538";
+const SRC_ISOLATED = "Коннолли, Бегг, с. 507";
+const SRC_LABEL = "Коннолли, Бегг, с. 401";
 
 /** Связь «многие ко многим»: с обеих сторон «много» ({ или }). */
 const isMany = (left: string, right: string) => left.startsWith("}") && right.endsWith("{");
@@ -73,7 +76,7 @@ function applyRules(model: ErModel): ErRemark[] {
       });
     }
     if (model.entities.length > 1 && !linked.has(e.name)) {
-      out.push({ rule: "isolated", entity: e.name, message: `Сущность «${e.name}» ни с чем не связана.`, source: SRC_ER });
+      out.push({ rule: "isolated", entity: e.name, message: `Сущность «${e.name}» ни с чем не связана.`, source: SRC_ISOLATED });
     }
   }
 
@@ -82,11 +85,11 @@ function applyRules(model: ErModel): ErRemark[] {
       out.push({
         rule: "many-to-many",
         message: `Связь «${r.from}» — «${r.to}» многие ко многим: разделите её через промежуточную сущность.`,
-        source: SRC_ER,
+        source: SRC_MANY,
       });
     }
     if (r.label === "") {
-      out.push({ rule: "no-label", message: `У связи «${r.from}» — «${r.to}» нет названия.`, source: SRC_ER });
+      out.push({ rule: "no-label", message: `У связи «${r.from}» — «${r.to}» нет названия.`, source: SRC_LABEL });
     }
   }
   return out;

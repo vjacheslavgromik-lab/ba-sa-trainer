@@ -45,6 +45,15 @@ describe("разбор ER (US-5.3)", () => {
     expect(m.relations[0]).toMatchObject({ from: "СТУДЕНТ", to: "ЗАПИСЬ" });
   });
 
+  it("понимает необязательный тип с «?» и имя со звёздочкой как первичный ключ (Mermaid 12)", () => {
+    const m = parseEr("erDiagram\n  PERSON {\n    string? middleName\n    int *id\n  }\n");
+    expect(m.errors).toEqual([]);
+    expect(m.entities[0].attributes).toEqual([
+      { type: "string?", name: "middleName", keys: [] },
+      { type: "int", name: "id", keys: ["PK"] },
+    ]);
+  });
+
   it("игнорирует комментарии %% и пустые строки", () => {
     expect(parseEr("erDiagram\n\n%% заметка\n  A {\n    int id PK %% ключ\n  }\n").errors).toEqual([]);
   });
@@ -99,6 +108,14 @@ describe("правила проверки ER (US-5.3, FR-15)", () => {
       "erDiagram\n  A ||--o{ B : x\n  A {\n    int id PK\n  }\n  B {\n    int id PK\n  }\n  C {\n    int id PK\n    int a_id FK\n  }\n",
     );
     expect(r.remarks.map((x) => x.rule).sort()).toEqual(["fk-without-relation", "isolated"]);
+  });
+
+  it("у замечаний уточнённые источники по страницам книги", () => {
+    const src = (text: string, rule: string) => checkEr(text).remarks.find((r) => r.rule === rule)?.source;
+    expect(src("erDiagram\n  A }o--o{ B : x\n  A {\n    int id PK\n  }\n  B {\n    int id PK\n  }\n", "many-to-many")).toContain("с. 412–416 и 538");
+    expect(src("erDiagram\n  A ||--o{ B\n  A {\n    int id PK\n  }\n  B {\n    int id PK\n  }\n", "no-label")).toContain("с. 401");
+    expect(src("erDiagram\n  A ||--o{ B : x\n  C {\n    int id PK\n  }\n  A {\n    int id PK\n  }\n  B {\n    int id PK\n  }\n", "isolated")).toContain("с. 507");
+    expect(src("erDiagram\n  A {\n    int id\n  }\n", "no-pk")).toContain("408–410");
   });
 
   it("повторяющийся атрибут", () => {
