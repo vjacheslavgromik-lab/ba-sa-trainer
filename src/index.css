@@ -135,3 +135,7 @@ main {
 .case-condition th { background: var(--bg-muted); font-weight: 600; }
 .case-condition pre { overflow-x: auto; margin: var(--space-3) 0; padding: var(--space-3); background: var(--bg-muted); border-radius: 6px; font-size: 13px; }
 .case-condition ul { padding-left: var(--space-5); margin: var(--space-2) 0; }
+
+.module-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-3); margin: var(--space-4) 0; }
+.module-nav__link { height: auto; min-height: 2.5rem; padding-block: var(--space-2); text-align: center; text-decoration: none; }
+@media (max-width: 640px) { .module-nav { flex-direction: column; } .module-nav > span:empty { display: none; } }

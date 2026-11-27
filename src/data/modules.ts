@@ -43,6 +43,18 @@ export function findModule(id: string | undefined): ModuleInfo | undefined {
   return MODULES.find((m) => m.id === id);
 }
 
+/** Подпись модуля в кнопках перехода: у выпускного проекта нет номера. */
+export function moduleLabel(m: ModuleInfo): string {
+  return m.id === "final" ? m.title : `Модуль ${m.number}. ${m.title}`;
+}
+
+/** Соседние модули в порядке списка: у первого нет предыдущего, у последнего нет следующего. */
+export function neighbours(id: string): { prev?: ModuleInfo; next?: ModuleInfo } {
+  const i = MODULES.findIndex((m) => m.id === id);
+  if (i < 0) return {};
+  return { prev: MODULES[i - 1], next: MODULES[i + 1] };
+}
+
 export const STATUS_LABEL: Record<ModuleStatus, string> = {
   not_started: "Не начат",
   in_progress: "В работе",
