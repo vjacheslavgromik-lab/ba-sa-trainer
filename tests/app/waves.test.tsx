@@ -54,7 +54,7 @@ describe("Волны контента (US-8.5)", () => {
 
 describe("Статус «В разработке» (US-8.4)", () => {
   it("модуль без контента: все разделы помечены, теория показывает пометку", async () => {
-    window.location.hash = "#/modules/10";
+    window.location.hash = "#/modules/final";
     render(<App />);
     const nav = await screen.findByRole("navigation", { name: "Разделы модуля" });
     for (const name of ["Теория", "Кейсы", "Тренажёры"]) {
@@ -95,7 +95,7 @@ describe("Статус «В разработке» (US-8.4)", () => {
   });
 
   it("вкладка «Кейсы» модуля без кейсов объясняет, что раздел в разработке", async () => {
-    window.location.hash = "#/modules/10/cases";
+    window.location.hash = "#/modules/final/cases";
     render(<App />);
     expect(await screen.findByText(/Кейсы для этого модуля появятся/)).toBeTruthy();
   });
