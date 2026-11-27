@@ -66,6 +66,12 @@ describe("Теория модуля 1: расшифровки и словарь"
     ["RUP", "Rational Unified Process"],
     ["MSF", "Microsoft Solutions Framework"],
     ["PWA", "Progressive Web App"],
+    ["SQL", "Structured Query Language"],
+    ["REST", "Representational State Transfer"],
+    ["JSON", "JavaScript Object Notation"],
+    ["XML", "Extensible Markup Language"],
+    ["BPMN", "Business Process Model and Notation"],
+    ["UML", "Unified Modeling Language"],
   ];
   for (const [abbr, full] of EXPANSIONS) {
     it(`${abbr}: рядом с первым упоминанием стоит расшифровка`, () => {
@@ -150,6 +156,29 @@ describe("Теория модуля 1: правки по рецензии", () =
     expect(t).toContain("в заказной разработке функциональные и нефункциональные требования часто писал и бизнес-аналитик");
     expect(t).not.toContain("Системный аналитик переводит «хочу»");
     for (const phrase of ["Описание интеграций", "Спецификации API", "Взаимодействие систем на низком уровне"]) expect(t, phrase).toContain(phrase);
+  });
+
+  it("глава 2: раздел об анализе вакансий — источники, даты, объём выборки, оговорки и таблицы навыков", () => {
+    const t = parts[1].body;
+    const part = t.slice(t.indexOf("## Что должен знать и уметь системный аналитик: по вакансиям"), t.indexOf("## Что общего"));
+    expect(part).toContain("27 ноября 2026");
+    for (const w of ["hh.ru", "hirify.me", "3 207", "49", "15 с первой страницы", "Оговорки", "автоматически"]) expect(part, w).toContain(w);
+    expect(part).toContain("только уровня senior");
+    for (const row of ["Интеграции между системами", "SQL (Structured Query Language", "BPMN (Business Process Model and Notation", "UML (Unified Modeling Language", "REST (Representational State Transfer", "Jira", "Confluence"]) expect(part, row).toContain(`| ${row}`);
+    // каждое число в таблицах навыков не больше размера выборки: 49 на hh.ru и 15 на hirify.me
+    const rows = part.split("\n").filter((l) => /^\| .+ \| \d+ \| \d+ \|$/.test(l));
+    expect(rows.length).toBeGreaterThanOrEqual(18);
+    for (const r of rows) {
+      const [, , hh, hf] = r.split("|").map((c) => c.trim());
+      expect(Number(hh), r).toBeLessThanOrEqual(49);
+      expect(Number(hf), r).toBeLessThanOrEqual(15);
+    }
+    // распределение опыта по карточкам hh.ru: 4 + 11 + 30 + 5 = 50
+    expect(4 + 11 + 30 + 5).toBe(50);
+    for (const w of ["без опыта — 4", "1–3 года — 11", "3–6 лет — 30", "более 6 лет — 5"]) expect(part, w).toContain(w);
+    expect(part).toContain("### Что из этого есть в курсе");
+    expect(part).toContain("Docker в курсе не разбирается");
+    expect(parts[1].body).toContain("- По вакансиям чаще всего просят:");
   });
 });
 
