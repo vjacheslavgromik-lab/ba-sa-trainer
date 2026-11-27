@@ -119,7 +119,7 @@ function CaseCard({ data }: { data: CaseData }) {
                 </legend>
                 <RadioGroup
                   disabled={submitted}
-                  value={answers[qid] === undefined ? undefined : String(answers[qid])}
+                  value={answers[qid] === undefined ? "" : String(answers[qid])}
                   onValueChange={(v) => setAnswers((prev) => ({ ...prev, [qid]: Number(v) }))}
                   aria-label={q.prompt}
                 >
