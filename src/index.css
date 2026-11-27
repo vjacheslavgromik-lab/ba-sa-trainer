@@ -109,6 +109,9 @@ main {
   border-left: 4px solid var(--accent-primary); background: var(--accent-soft); border-radius: 0 var(--radius-card) var(--radius-card) 0;
 }
 .theory blockquote p { margin: var(--space-2) 0; }
+.theory img { display: block; max-width: 100%; height: auto; margin: var(--space-4) auto var(--space-2); border: 1px solid var(--border-default); border-radius: 8px; background: #fff; }
+.theory p:has(> img) { margin-bottom: 0; }
+.theory p:has(> img) + p > em:only-child { display: block; text-align: center; font-size: 14px; color: var(--text-secondary); }
 .theory table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; margin: var(--space-4) 0; font-size: 15px; line-height: 1.45; }
 .theory th, .theory td { border: 1px solid var(--border-default); padding: var(--space-2) var(--space-3); text-align: left; vertical-align: top; }
 .theory th { background: var(--bg-muted); font-weight: 600; }

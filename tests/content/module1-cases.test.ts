@@ -63,11 +63,17 @@ describe("Эталоны кейсов модуля 1", () => {
     const lines = block(c.reference).trim().split("\n");
     expect(lines).toHaveLength(10);
     const line = (n: number) => lines[n - 1];
-    for (const n of [4, 5, 6]) expect(line(n), `задача ${n}`).toContain("системный аналитик");
+    expect(line(5), "интеграция — системный аналитик").toContain("системный аналитик");
+    for (const n of [4, 6]) {
+      expect(line(n), `задача ${n}`).toContain("системный аналитик");
+      expect(line(n), `задача ${n}`).toContain("бизнес-аналитик");
+    }
     for (const n of [2, 3]) expect(line(n), `задача ${n}`).toContain("бизнес-аналитик");
+    expect(c.condition).toContain("спецификацию API");
     expect(line(7)).toContain("архитектор");
     expect(line(9)).toContain("разработчики");
-    expect(c.reference).toContain("распространённая практика, а не норма");
+    expect(c.reference).toContain("практика рынка, а не норма");
+    expect(c.reference).toContain("брокеры сообщений");
   });
 
   it("кейс 2: все десять технических требований распределены по подсистемам, нефункциональные измеримы", () => {

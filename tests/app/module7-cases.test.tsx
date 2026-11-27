@@ -79,4 +79,28 @@ describe("страница кейсов модуля 7", () => {
     expect(within(again).queryByText(/Порог не достигнут/)).toBeNull();
     expect(within(again).getByRole("button", { name: "Проверить ответы" })).toBeTruthy();
   });
+  it("«Пройти заново» сбрасывает выбранные варианты на экране без перезагрузки страницы, затем можно пройти порог", async () => {
+    render(<App />);
+    await screen.findAllByRole("heading", { level: 3, name: "Теория" });
+    const c = getCases("7")[0];
+    const card = screen.getByRole("region", { name: c.title });
+    for (const [i, qid] of c.questions.entries()) {
+      const q = getQuestion(qid)!;
+      const pick = i < 2 ? (q.correct + 1) % 4 : q.correct;
+      await userEvent.click(within(within(card).getByRole("radiogroup", { name: q.prompt })).getByLabelText(q.options[pick]));
+    }
+    await userEvent.click(within(card).getByRole("button", { name: "Проверить ответы" }));
+    await userEvent.click(within(card).getByRole("button", { name: "Пройти заново" }));
+    expect(within(card).queryByText(/Порог не достигнут/)).toBeNull();
+    expect(within(card).queryAllByRole("radio", { checked: true })).toHaveLength(0);
+    const submit = within(card).getByRole("button", { name: "Проверить ответы" }) as HTMLButtonElement;
+    expect(submit.disabled).toBe(true);
+    for (const qid of c.questions) {
+      const q = getQuestion(qid)!;
+      await userEvent.click(within(within(card).getByRole("radiogroup", { name: q.prompt })).getByLabelText(q.options[q.correct]));
+    }
+    expect(submit.disabled).toBe(false);
+    await userEvent.click(submit);
+    expect(within(card).getByText(/Порог пройден/)).toBeTruthy();
+  });
 });

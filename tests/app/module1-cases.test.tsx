@@ -41,7 +41,7 @@ describe("страница кейсов модуля 1", () => {
     render(<App />);
     await screen.findAllByRole("heading", { level: 3, name: "Теория" });
     const card = await passGate("M1-CASE-01");
-    expect(within(card).getAllByRole("listitem").filter((li) => /кодa?|код записи|метрику успеха|интерфейс интеграции/.test(li.textContent ?? "")).length).toBeGreaterThanOrEqual(3);
+    expect(within(card).getAllByRole("listitem").filter((li) => /кодa?|код записи|метрику успеха|интеграцию с платёжным шлюзом/.test(li.textContent ?? "")).length).toBeGreaterThanOrEqual(3);
     await userEvent.click(within(card).getByLabelText("Ваш ответ"));
     await userEvent.paste("1) Бизнес-цель — владелец продукта");
     await userEvent.click(within(card).getByRole("button", { name: /Отправить/ }));
