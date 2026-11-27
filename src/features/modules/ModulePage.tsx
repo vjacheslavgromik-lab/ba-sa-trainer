@@ -1,8 +1,9 @@
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import { MODULES_WITH_TRAINER, findModule, isModulePublished } from "../../data/modules";
 import { getCases, getTheory } from "../../content/loader";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ModuleNav } from "./ModuleNav";
 
 const TABS = [
   { to: "theory", label: "Теория", key: "theory" },
@@ -13,6 +14,7 @@ const TABS = [
 export default function ModulePage() {
   const { id } = useParams();
   const module = findModule(id);
+  const { pathname } = useLocation();
   if (!module) {
     return (
       <section>
@@ -28,8 +30,11 @@ export default function ModulePage() {
     cases: getCases(module.id).length > 0,
     trainers: MODULES_WITH_TRAINER.includes(module.id),
   };
+  const lastSegment = pathname.split("/").pop() ?? "";
+  const tab = TABS.some((t) => t.to === lastSegment) ? lastSegment : "theory";
   return (
     <section aria-labelledby="module-title">
+      <ModuleNav moduleId={module.id} tab={tab} label="Переход между модулями вверху страницы" />
       <p className="muted">Модуль {module.number}</p>
       <h1 id="module-title">{module.title}</h1>
       <p>{module.result}</p>
@@ -60,6 +65,7 @@ export default function ModulePage() {
       <div className="module-body">
         <Outlet />
       </div>
+      <ModuleNav moduleId={module.id} tab={tab} label="Переход между модулями внизу страницы" />
     </section>
   );
 }
