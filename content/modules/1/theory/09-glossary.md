@@ -17,6 +17,12 @@ reviewStatus: draft
 | XP | Extreme Programming, экстремальное программирование | 1 |
 | API | Application Programming Interface, программный интерфейс | 3 |
 | SRS | Software Requirements Specification, спецификация требований к ПО | 3 |
+| SQL | Structured Query Language, язык структурированных запросов | 2 |
+| REST | Representational State Transfer, передача состояния представления | 2 |
+| JSON | JavaScript Object Notation, формат записи данных | 2 |
+| XML | Extensible Markup Language, расширяемый язык разметки | 2 |
+| BPMN | Business Process Model and Notation, нотация моделирования бизнес-процессов | 2 |
+| UML | Unified Modeling Language, унифицированный язык моделирования | 2 |
 | ЖЦ ПО | жизненный цикл программного обеспечения | 4 |
 | RUP | Rational Unified Process | 5 |
 | MSF | Microsoft Solutions Framework | 5 |
