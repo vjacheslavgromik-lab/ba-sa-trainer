@@ -1,0 +1,28 @@
+{
+  "id": "M12-CASE-04",
+  "module": 12,
+  "title": "API расписания «Виты»: OpenAPI и событие записи",
+  "condition": "Команда проектирует интерфейсы расписания и записи. Нужны:\n\n- операция «получить свободные слоты врача на дату» для веб- и мобильного приложений;\n- событие «Запись создана» для сервиса уведомлений. В событии: идентификатор события, идентификатор записи, идентификатор пациента, время начала слота.\n\nБизнес-ошибки: врач не найден; дата не указана.\n\nЗадание: (1) составьте таблицу высокоуровневого проекта: операция или событие, стиль, ресурс или канал, успех, бизнес-ошибки; (2) запишите на YAML фрагмент спецификации OpenAPI 3.1.1 для операции получения слотов: параметры, ответы, схему слота и общий ответ об ошибке через `components` и `$ref`; (3) запишите на YAML описание канала и сообщения для события в формате AsyncAPI 3.1.0; (4) проверьте свою работу по списку из главы 9.",
+  "checklist": [
+    "В таблице у каждого сценария указан стиль: запрос с ответом или событие",
+    "Операция получения слотов выведена из ресурса, адрес содержит идентификатор врача",
+    "Параметры пути и запроса описаны, параметр пути объявлен",
+    "Ответ 200 и ответ об ошибке описаны, общая ошибка вынесена в components и подключена по $ref",
+    "Все ссылки $ref ведут на существующие компоненты",
+    "Схема слота перечисляет обязательные поля, они описаны в properties",
+    "В AsyncAPI канал, сообщение и две операции: отправка и получение",
+    "Все четыре поля события из условия описаны в сообщении"
+  ],
+  "reference": "Эталон (черновик, требует рецензии).\n\n```text\nОперация или событие | Стиль | Ресурс или канал | Успех | Бизнес-ошибки\nСвободные слоты врача на дату | запрос с ответом | GET /doctors/{doctorId}/slots?date= | 200, список слотов | врач не найден (404); дата не указана (400)\nЗапись создана | событие | канал vita.appointments | сообщение опубликовано | —\n```\n\nФрагмент OpenAPI:\n\n```yaml\nopenapi: 3.1.1\ninfo:\n  title: Вита. Расписание\n  version: 0.1.0\npaths:\n  /doctors/{doctorId}/slots:\n    get:\n      operationId: listSlots\n      summary: Свободные слоты врача на дату\n      parameters:\n        - $ref: '#/components/parameters/DoctorId'\n        - name: date\n          in: query\n          required: true\n          schema:\n            type: string\n            format: date\n      responses:\n        '200':\n          description: Список свободных слотов\n          content:\n            application/json:\n              schema:\n                type: array\n                items:\n                  $ref: '#/components/schemas/Slot'\n        '400':\n          $ref: '#/components/responses/BadRequest'\n        '404':\n          $ref: '#/components/responses/NotFound'\ncomponents:\n  parameters:\n    DoctorId:\n      name: doctorId\n      in: path\n      required: true\n      schema:\n        type: string\n  schemas:\n    Slot:\n      type: object\n      required: [slotId, start]\n      properties:\n        slotId:\n          type: string\n        start:\n          type: string\n          format: date-time\n    Error:\n      type: object\n      required: [code, message]\n      properties:\n        code:\n          type: string\n        message:\n          type: string\n  responses:\n    BadRequest:\n      description: Дата не указана или указана неверно\n      content:\n        application/json:\n          schema:\n            $ref: '#/components/schemas/Error'\n    NotFound:\n      description: Врач не найден\n      content:\n        application/json:\n          schema:\n            $ref: '#/components/schemas/Error'\n```\n\nФрагмент AsyncAPI:\n\n```yaml\nasyncapi: 3.1.0\ninfo:\n  title: Вита. События записи\n  version: 0.1.0\nchannels:\n  appointmentEvents:\n    address: vita.appointments\n    messages:\n      appointmentBooked:\n        payload:\n          type: object\n          required: [eventId, appointmentId, patientId, slotStart]\n          properties:\n            eventId:\n              type: string\n            appointmentId:\n              type: string\n            patientId:\n              type: string\n            slotStart:\n              type: string\n              format: date-time\noperations:\n  publishAppointmentBooked:\n    action: send\n    channel:\n      $ref: '#/channels/appointmentEvents'\n  receiveAppointmentBooked:\n    action: receive\n    channel:\n      $ref: '#/channels/appointmentEvents'\n```\n\nПроверка по главе 9: спецификация читается как инструкция потребителя; у каждого `$ref` есть адресат в `components`; обязательные поля описаны; у операции есть ответы об ошибках. Перед использованием в проекте документы нужно прогнать через валидатор: в этом приложении проверка OpenAPI и AsyncAPI не выполняется.",
+  "check": {
+    "type": "manual"
+  },
+  "questions": [
+    "M12-Q19",
+    "M12-Q20",
+    "M12-Q21",
+    "M12-Q22",
+    "M12-Q23",
+    "M12-Q24"
+  ]
+}
