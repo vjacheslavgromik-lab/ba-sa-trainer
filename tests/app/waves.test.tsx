@@ -1,7 +1,19 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within, cleanup } from "@testing-library/react";
 import App from "../../src/app/App";
+
+// Контент есть у всех настоящих модулей, поэтому «модуль без контента» имитируем: для модуля «Выпускной проект»
+// загрузчик возвращает пустую теорию и пустые кейсы (остальные модули работают с настоящими данными).
+vi.mock("../../src/content/loader", async () => {
+  const actual = await vi.importActual<typeof import("../../src/content/loader")>("../../src/content/loader");
+  return {
+    ...actual,
+    getTheory: (id: string) => (id === "final" ? [] : actual.getTheory(id)),
+    getTheoryParts: (id: string) => (id === "final" ? [] : actual.getTheoryParts(id)),
+    getCases: (id: string) => (id === "final" ? [] : actual.getCases(id)),
+  };
+});
 import { MODULES, PUBLISHED_WAVES, MODULES_WITH_TRAINER, findModule, isModulePublished } from "../../src/data/modules";
 
 // jsdom не реализует ResizeObserver; Radix его использует.
