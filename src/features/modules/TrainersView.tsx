@@ -7,11 +7,13 @@ import PostmanTrainerView from "../postman/PostmanTrainerView";
 const SqlSandboxView = lazy(() => import("../sql/SqlSandboxView"));
 // Тренажёр ER и Mermaid грузятся только при открытии тренажёра модуля 4.
 const ErTrainerView = lazy(() => import("../er/ErTrainerView"));
+// Тренажёр диаграммы классов тоже открывается только на вкладке «Тренажёры» модуля 4 и использует тот же Mermaid.
+const ClassTrainerView = lazy(() => import("../classdiagram/ClassTrainerView"));
 // Тренажёр OpenAPI и библиотека разбора YAML грузятся только при открытии тренажёров модулей 9, 12 и выпускного проекта.
 const OpenApiTrainerView = lazy(() => import("../openapi/OpenApiTrainerView"));
 
 /**
- * Вкладка «Тренажёры»: для модуля 3 — песочница SQL, для модуля 4 — ER-тренажёр, для модуля 9 — проверка Postman и OpenAPI,
+ * Вкладка «Тренажёры»: для модуля 3 — песочница SQL, для модуля 4 — ER-тренажёр и тренажёр диаграммы классов, для модуля 9 — проверка Postman и OpenAPI,
  * для модуля 12 и выпускного проекта — проверка OpenAPI, для остальных модулей — заглушка.
  */
 export default function TrainersView() {
@@ -27,6 +29,7 @@ export default function TrainersView() {
     return (
       <Suspense fallback={<p className="muted">Загрузка тренажёра…</p>}>
         <ErTrainerView />
+        <ClassTrainerView />
       </Suspense>
     );
   }
