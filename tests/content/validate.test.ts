@@ -24,6 +24,17 @@ describe("validateCase", () => {
     const errs = validateCase("c.json", { ...goodCase, questions: [] });
     expect(errs.map((e) => e.path)).toContain("questions");
   });
+  it("кейс без гейта (gate: none) не требует вопросов, но и не допускает их", () => {
+    expect(validateCase("c.json", { ...goodCase, gate: "none", questions: [] })).toEqual([]);
+    const { questions: _omit, ...withoutQuestions } = goodCase;
+    expect(validateCase("c.json", { ...withoutQuestions, gate: "none" })).toEqual([]);
+    const errs = validateCase("c.json", { ...goodCase, gate: "none" });
+    expect(errs.map((e) => e.path)).toContain("questions");
+  });
+  it("отклоняет неизвестное значение gate", () => {
+    expect(validateCase("c.json", { ...goodCase, gate: "never" }).map((e) => e.path)).toContain("gate");
+    expect(validateCase("c.json", { ...goodCase, gate: "questions" })).toEqual([]);
+  });
 });
 
 describe("validateQuestion", () => {

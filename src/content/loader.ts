@@ -26,6 +26,8 @@ export interface CaseData {
   checklist: string[];
   reference: string;
   check: { type: string };
+  /** Как открывается практика: по вопросам теории (по умолчанию) или сразу, без вопросов (выпускной проект). */
+  gate?: "questions" | "none";
   /** Правила проверки Postman-коллекции; есть у кейсов с check.type = "postman". */
   postman?: {
     rules: { requests?: { method: string; path: string; statuses?: number[]; bodyFields?: string[] }[] };
