@@ -1,0 +1,245 @@
+{
+  "id": "FINAL-CASE-03",
+  "module": 13,
+  "title": "Этап 3. Данные: ER-модель полной системы проката",
+  "condition": "**Этап 3 из 6. Данные.** В модуле 4 вы строили ER-модель базового проката «Накарабине». Теперь нужна модель полной системы: пункты проката, бронь со статусом, залог и штрафы.\n\n**Задание.** (1) Опишите ER-модель в формате Mermaid `erDiagram` и проверьте её в окне ниже: клиент, пункт проката, тип снаряжения, единица снаряжения (инвентарный номер, цена за сутки, пункт хранения), аренда (пункт выдачи, статус, даты начала и окончания), позиция аренды (залог за единицу) и штраф (вид, сумма, относится к позиции аренды). У каждой сущности есть первичный ключ, у каждой связи название и кратность; связи «многие ко многим» разведите промежуточной сущностью. Названия и статусы должны совпадать с процессом из этапа 2.\n\nПосле того как модель принята и открылся эталон, сделайте для себя, не отправляя: (2) словарь данных для сущностей «Аренда» и «Единица снаряжения»; (3) два SQL-запроса: просроченные аренды с именем и телефоном клиента; занятые единицы снаряжения в пункте 1 на даты с 1 по 3 мая 2027 года. Сравните с эталоном.",
+  "checklist": [
+    "Все сущности имеют первичный ключ и атрибуты",
+    "Связь «многие ко многим» между арендой и снаряжением разведена через позицию аренды",
+    "Есть пункт проката со связями к аренде и к снаряжению",
+    "У аренды есть статус и даты начала и окончания; у позиции аренды залог; у штрафа вид и сумма",
+    "Статусы совпадают с диаграммой состояний этапа 2",
+    "Словарь данных: тип, обязательность, допустимые значения, пример",
+    "Запрос просроченных аренд соединяет аренду и клиента и фильтрует по статусу",
+    "Запрос занятых единиц проверяет пересечение дат и учитывает только активные статусы"
+  ],
+  "reference": "Эталон (черновик, требует рецензии). Это один из возможных ответов: сверяйте решения и согласованность этапов, а не формулировки.\n\n**ER-модель**\n\n```text\nerDiagram\n  CUSTOMER ||--o{ RENTAL : \"оформляет\"\n  POINT ||--o{ RENTAL : \"выдаёт\"\n  POINT ||--o{ EQUIPMENT : \"хранит\"\n  EQUIPMENT_TYPE ||--o{ EQUIPMENT : \"объединяет\"\n  RENTAL ||--|{ RENTAL_ITEM : \"включает\"\n  EQUIPMENT ||--o{ RENTAL_ITEM : \"сдаётся в\"\n  RENTAL_ITEM ||--o{ PENALTY : \"влечёт\"\n  CUSTOMER {\n    int id PK\n    string name\n    string phone UK\n  }\n  POINT {\n    int id PK\n    string name\n    string address\n  }\n  EQUIPMENT_TYPE {\n    int id PK\n    string title\n  }\n  EQUIPMENT {\n    int id PK\n    int type_id FK\n    int point_id FK\n    string inventory_no UK\n    string title\n    int price_per_day\n  }\n  RENTAL {\n    int id PK\n    int customer_id FK\n    int point_id FK\n    string status\n    date start_at\n    date end_at\n  }\n  RENTAL_ITEM {\n    int id PK\n    int rental_id FK\n    int equipment_id FK\n    int deposit\n  }\n  PENALTY {\n    int id PK\n    int rental_item_id FK\n    string kind\n    int amount\n  }\n```\n\nСвязь «многие ко многим» между арендой и снаряжением разведена через «Позицию аренды» (RENTAL_ITEM): в ней хранится залог за единицу. Штраф относится к позиции аренды: повреждение конкретной единицы или просрочка. Статус аренды принимает значения booked, issued, overdue, returned, closed, canceled — это те же состояния, что в процессе этапа 2.\n\n**Словарь данных (фрагмент)**\n\n| Сущность и атрибут | Тип | Обязательность | Допустимые значения | Пример |\n|---|---|---|---|---|\n| Аренда: status | строка | да | booked, issued, overdue, returned, closed, canceled | issued |\n| Аренда: start_at | дата | да | не ранее сегодняшней при создании, не позднее чем через 30 суток | 2027-05-01 |\n| Аренда: end_at | дата | да | не раньше start_at, не менее 1 суток | 2027-05-04 |\n| Единица: inventory_no | строка | да | уникальный инвентарный номер | T-001 |\n| Единица: price_per_day | целое | да | цена за сутки в рублях, больше 0 | 600 |\n\n**Тестовые данные и запросы**\n\n```sql\nCREATE TABLE customer (id INTEGER PRIMARY KEY, name TEXT NOT NULL, phone TEXT NOT NULL UNIQUE);\nCREATE TABLE point (id INTEGER PRIMARY KEY, name TEXT NOT NULL, address TEXT NOT NULL);\nCREATE TABLE equipment_type (id INTEGER PRIMARY KEY, title TEXT NOT NULL);\nCREATE TABLE equipment (id INTEGER PRIMARY KEY, type_id INTEGER NOT NULL REFERENCES equipment_type(id), point_id INTEGER NOT NULL REFERENCES point(id), inventory_no TEXT NOT NULL UNIQUE, title TEXT NOT NULL, price_per_day INTEGER NOT NULL);\nCREATE TABLE rental (id INTEGER PRIMARY KEY, customer_id INTEGER NOT NULL REFERENCES customer(id), point_id INTEGER NOT NULL REFERENCES point(id), status TEXT NOT NULL, start_at TEXT NOT NULL, end_at TEXT NOT NULL);\nCREATE TABLE rental_item (id INTEGER PRIMARY KEY, rental_id INTEGER NOT NULL REFERENCES rental(id), equipment_id INTEGER NOT NULL REFERENCES equipment(id), deposit INTEGER NOT NULL);\nCREATE TABLE penalty (id INTEGER PRIMARY KEY, rental_item_id INTEGER NOT NULL REFERENCES rental_item(id), kind TEXT NOT NULL, amount INTEGER NOT NULL);\nINSERT INTO customer VALUES (1, 'Анна', '+79001112233'), (2, 'Борис', '+79004445566'), (3, 'Вера', '+79007778899');\nINSERT INTO point VALUES (1, 'Выборгская', 'Выборгская наб., 1'), (2, 'Купчино', 'Дунайский пр., 2');\nINSERT INTO equipment_type VALUES (1, 'Палатка'), (2, 'Спальник'), (3, 'Рюкзак'), (4, 'Треккинговые палки');\nINSERT INTO equipment VALUES (1, 1, 1, 'T-001', 'Палатка Trail-2', 600), (2, 2, 1, 'S-001', 'Спальник Comfort', 300), (3, 3, 1, 'R-001', 'Рюкзак Alpine-50', 400), (4, 1, 2, 'T-002', 'Палатка Trail-3', 800), (5, 3, 2, 'R-002', 'Рюкзак Alpine-70', 500), (6, 4, 1, 'P-001', 'Палки Trek', 150);\nINSERT INTO rental VALUES (1, 1, 1, 'issued', '2027-05-01', '2027-05-04'), (2, 2, 1, 'booked', '2027-05-02', '2027-05-05'), (3, 3, 2, 'overdue', '2027-04-20', '2027-04-25'), (4, 1, 1, 'closed', '2027-04-01', '2027-04-03');\nINSERT INTO rental_item VALUES (1, 1, 1, 540), (2, 1, 2, 270), (3, 2, 3, 360), (4, 3, 5, 450), (5, 4, 1, 540);\nINSERT INTO penalty VALUES (1, 5, 'повреждение', 500);\n```\n\nПросроченные аренды с именем и телефоном клиента:\n\n```sql\nSELECT c.name, c.phone, r.id AS rental_id, r.end_at FROM rental r JOIN customer c ON c.id = r.customer_id WHERE r.status = 'overdue' ORDER BY r.id;\n```\n\nРезультат: «Вера», «+79007778899», аренда 3, срок окончания 2027-04-25.\n\nЗанятые единицы в пункте 1 на 1–3 мая 2027 года (пересечение дат, только активные статусы):\n\n```sql\nSELECT e.inventory_no FROM equipment e JOIN rental_item i ON i.equipment_id = e.id JOIN rental r ON r.id = i.rental_id WHERE e.point_id = 1 AND r.status IN ('booked', 'issued', 'overdue') AND r.start_at <= '2027-05-03' AND r.end_at >= '2027-05-01' ORDER BY e.inventory_no;\n```\n\nРезультат: R-001, S-001, T-001 (аренда 4 закрыта, поэтому T-001 из неё не учитывается).",
+  "check": {
+    "type": "er"
+  },
+  "gate": "none",
+  "questions": [],
+  "er": {
+    "rules": {
+      "entities": [
+        {
+          "id": "customer",
+          "label": "Клиент",
+          "names": [
+            "customer",
+            "client",
+            "клиент"
+          ],
+          "attributes": [
+            {
+              "label": "телефон",
+              "names": [
+                "phone",
+                "phone_number",
+                "tel",
+                "телефон"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "point",
+          "label": "Пункт проката",
+          "names": [
+            "point",
+            "rental_point",
+            "pickup_point",
+            "location",
+            "пункт",
+            "пункт_проката"
+          ],
+          "attributes": [
+            {
+              "label": "адрес",
+              "names": [
+                "address",
+                "адрес"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "type",
+          "label": "Тип снаряжения",
+          "names": [
+            "equipment_type",
+            "equipmenttype",
+            "gear_type",
+            "type",
+            "тип_снаряжения",
+            "тип снаряжения"
+          ]
+        },
+        {
+          "id": "equipment",
+          "label": "Единица снаряжения",
+          "names": [
+            "equipment",
+            "gear",
+            "item_unit",
+            "снаряжение",
+            "единица_снаряжения"
+          ],
+          "attributes": [
+            {
+              "label": "инвентарный номер",
+              "names": [
+                "inventory_no",
+                "inventory_number",
+                "inv_no",
+                "инвентарный_номер"
+              ]
+            },
+            {
+              "label": "цена за сутки",
+              "names": [
+                "price_per_day",
+                "daily_price",
+                "price",
+                "цена_за_сутки",
+                "цена_в_день"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rental",
+          "label": "Аренда",
+          "names": [
+            "rental",
+            "rent",
+            "аренда",
+            "прокат"
+          ],
+          "attributes": [
+            {
+              "label": "статус",
+              "names": [
+                "status",
+                "state",
+                "статус"
+              ]
+            },
+            {
+              "label": "дата начала",
+              "names": [
+                "start_at",
+                "start_date",
+                "started_at",
+                "date_from",
+                "дата_начала"
+              ]
+            },
+            {
+              "label": "дата окончания",
+              "names": [
+                "end_at",
+                "end_date",
+                "ended_at",
+                "date_to",
+                "дата_окончания"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "item",
+          "label": "Позиция аренды",
+          "names": [
+            "rental_item",
+            "rentalitem",
+            "rental_line",
+            "позиция_аренды",
+            "позиция аренды"
+          ],
+          "attributes": [
+            {
+              "label": "залог",
+              "names": [
+                "deposit",
+                "залог"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "penalty",
+          "label": "Штраф",
+          "names": [
+            "penalty",
+            "fine",
+            "штраф"
+          ],
+          "attributes": [
+            {
+              "label": "вид",
+              "names": [
+                "kind",
+                "type",
+                "reason",
+                "вид"
+              ]
+            },
+            {
+              "label": "сумма",
+              "names": [
+                "amount",
+                "sum",
+                "сумма"
+              ]
+            }
+          ]
+        }
+      ],
+      "relations": [
+        {
+          "from": "customer",
+          "to": "rental",
+          "kind": "one-to-many",
+          "label": "Клиент — Аренда"
+        },
+        {
+          "from": "point",
+          "to": "rental",
+          "kind": "one-to-many",
+          "label": "Пункт проката — Аренда"
+        },
+        {
+          "from": "point",
+          "to": "equipment",
+          "kind": "one-to-many",
+          "label": "Пункт проката — Единица снаряжения"
+        },
+        {
+          "from": "type",
+          "to": "equipment",
+          "kind": "one-to-many",
+          "label": "Тип снаряжения — Единица снаряжения"
+        },
+        {
+          "from": "rental",
+          "to": "item",
+          "kind": "one-to-many",
+          "label": "Аренда — Позиция аренды"
+        },
+        {
+          "from": "equipment",
+          "to": "item",
+          "kind": "one-to-many",
+          "label": "Единица снаряжения — Позиция аренды"
+        },
+        {
+          "from": "item",
+          "to": "penalty",
+          "kind": "one-to-many",
+          "label": "Позиция аренды — Штраф"
+        }
+      ]
+    }
+  }
+}

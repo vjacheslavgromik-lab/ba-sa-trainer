@@ -1,5 +1,7 @@
 // Практика ER-кейса: диаграмма Mermaid проверяется правилами тренажёра и правилами кейса (US-5.3, US-8.2).
 import { useState } from "react";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,7 +92,9 @@ export default function ErCasePractice({ data, initialText, solved, onSolved }: 
         <>
           <p className="feedback feedback--ok">Кейс засчитан.</p>
           <h4>Эталонное решение</h4>
-          <p>{data.reference}</p>
+          <div className="case-condition">
+            <Markdown remarkPlugins={[remarkGfm]}>{data.reference}</Markdown>
+          </div>
         </>
       ) : (
         <p className="muted">Эталонное решение появится после диаграммы без замечаний.</p>
