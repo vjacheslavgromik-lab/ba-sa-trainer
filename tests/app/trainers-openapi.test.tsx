@@ -41,6 +41,13 @@ describe("вкладка «Тренажёры»: OpenAPI", () => {
     expect(tabs[0].textContent).not.toContain("В разработке");
   });
 
+  it("модуль 4: ER-тренажёр и тренажёр диаграммы классов", async () => {
+    window.location.hash = "#/modules/4/trainers";
+    render(<App />);
+    expect(await screen.findByRole("heading", { name: "Тренажёр диаграммы классов" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Тренажёр ER-диаграммы" })).toBeTruthy();
+  });
+
   it("модули без тренажёра по-прежнему показывают «В разработке»", async () => {
     window.location.hash = "#/modules/7/trainers";
     render(<App />);
