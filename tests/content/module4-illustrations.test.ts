@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const parts = getTheoryParts("4");
 const IMG = /!\[([^\]]*)\]\(\.\/theory-images\/m4\/([\w-]+\.svg)\)\n\n\*(Рис\. \d+\.[^*]+)\*/g;

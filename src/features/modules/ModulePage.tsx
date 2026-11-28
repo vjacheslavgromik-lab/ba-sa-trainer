@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import { MODULES_WITH_TRAINER, findModule, isModulePublished } from "../../data/modules";
-import { getCases, getTheory } from "../../content/loader";
+import { getCases, hasTheory } from "../../content/loader";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ModuleNav } from "./ModuleNav";
@@ -26,7 +26,7 @@ export default function ModulePage() {
   }
   // Раздел без содержимого помечается «В разработке», теория при этом остаётся доступной (US-8.4).
   const available = {
-    theory: getTheory(module.id).length > 0,
+    theory: hasTheory(module.id),
     cases: getCases(module.id).length > 0,
     trainers: MODULES_WITH_TRAINER.includes(module.id),
   };

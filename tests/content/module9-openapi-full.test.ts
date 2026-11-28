@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "yaml";
-import { getCases, getTheoryParts } from "../../src/content/loader";
+import { getCases } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const chapter = getTheoryParts("9").find((p) => p.title.startsWith("Документирование API"))!;
 const fullText = /```yaml file=(\S+)\n([\s\S]*?)```/.exec(chapter.body);

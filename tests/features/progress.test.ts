@@ -11,7 +11,8 @@ import {
   summarizeProgress,
   type Progress,
 } from "../../src/features/progress/progress";
-import { getCases, getQuestion, getTheory } from "../../src/content/loader";
+import { getCases, getQuestion } from "../../src/content/loader";
+import { getTheory } from "../helpers/theory";
 
 describe("Порог прохождения кейса (FR-17)", () => {
   it("считает долю верных ответов", () => {

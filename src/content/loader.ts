@@ -52,24 +52,26 @@ export interface CaseData {
   questions: string[];
 }
 
-const theoryFiles = import.meta.glob("/content/modules/*/theory/*.md", {
-  query: "?raw",
-  import: "default",
-  eager: true,
-}) as Record<string, string>;
-
 const caseFiles = import.meta.glob("/content/modules/*/cases/*.json", { eager: true, import: "default" }) as Record<string, CaseData>;
 const questionFiles = import.meta.glob("/content/modules/*/questions/*.json", { eager: true, import: "default" }) as Record<string, QuestionData>;
 
-/** Файлы теории модуля в порядке имён: главы нумеруют префиксом в имени файла (01-…, 02-…). */
-function theoryEntries(moduleId: string): [string, string][] {
-  return Object.entries(theoryFiles)
-    .filter(([path]) => path.includes(`/modules/${moduleId}/theory/`))
-    .sort(([a], [b]) => a.localeCompare(b));
+// Теория подгружается лениво, по файлам: основной файл приложения не содержит её текст.
+// Здесь только список файлов (пути), сам текст загружается при открытии вкладки «Теория».
+const theoryLoaders = import.meta.glob("/content/modules/*/theory/*.md", {
+  query: "?raw",
+  import: "default",
+}) as Record<string, () => Promise<string>>;
+
+/** Пути файлов теории модуля в порядке имён: главы нумеруют префиксом в имени файла (01-…, 02-…). */
+function theoryPaths(moduleId: string): string[] {
+  return Object.keys(theoryLoaders)
+    .filter((path) => path.includes(`/modules/${moduleId}/theory/`))
+    .sort((a, b) => a.localeCompare(b));
 }
 
-export function getTheory(moduleId: string): string[] {
-  return theoryEntries(moduleId).map(([, text]) => text);
+/** Есть ли у модуля теория. Текст при этом не загружается. */
+export function hasTheory(moduleId: string): boolean {
+  return theoryPaths(moduleId).length > 0;
 }
 
 export interface TheoryPart {
@@ -77,12 +79,18 @@ export interface TheoryPart {
   body: string;
 }
 
-/** Главы теории модуля: заголовок из frontmatter и текст без него, по порядку файлов. */
-export function getTheoryParts(moduleId: string): TheoryPart[] {
-  return theoryEntries(moduleId).map(([, text]) => ({
+/** Глава теории из текста файла: заголовок из frontmatter и текст без него. */
+export function toTheoryPart(text: string): TheoryPart {
+  return {
     title: parseFrontmatter(text).title?.replace(/^"|"$/g, "") ?? "",
     body: text.replace(/^---[\s\S]*?---/, ""),
-  }));
+  };
+}
+
+/** Главы теории модуля по порядку файлов; файлы загружаются при первом вызове. */
+export async function loadTheoryParts(moduleId: string): Promise<TheoryPart[]> {
+  const texts = await Promise.all(theoryPaths(moduleId).map((path) => theoryLoaders[path]()));
+  return texts.map(toTheoryPart);
 }
 
 export function getCases(moduleId: string): CaseData[] {

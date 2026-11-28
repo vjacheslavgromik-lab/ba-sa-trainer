@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import initSqlJs, { type SqlJsStatic } from "sql.js";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 import { DEMO_SETUP } from "../../src/features/sql/sandbox";
 
 let engine: SqlJsStatic;

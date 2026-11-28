@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const parts = getTheoryParts("7");
 const prose = (md: string) => md.replace(/```[\s\S]*?```/g, "").replace(/`[^`]*`/g, "").replace(/\*/g, "");

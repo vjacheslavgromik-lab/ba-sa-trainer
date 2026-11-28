@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const [theory] = getTheoryParts("2");
 const body = theory.body;

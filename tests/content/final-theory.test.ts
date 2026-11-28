@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 import { MODULES } from "../../src/data/modules";
 
 const parts = getTheoryParts("final");

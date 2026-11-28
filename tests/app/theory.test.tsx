@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within, cleanup } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import App from "../../src/app/App";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 if (!("ResizeObserver" in globalThis)) {
   (globalThis as { ResizeObserver?: unknown }).ResizeObserver = class {

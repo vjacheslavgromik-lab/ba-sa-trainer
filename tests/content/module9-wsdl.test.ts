@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const soap = getTheoryParts("9").find((p) => p.title.startsWith("SOAP"))!;
 const documenting = getTheoryParts("9").find((p) => p.title.startsWith("Документирование API"))!;
