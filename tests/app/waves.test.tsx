@@ -3,14 +3,14 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within, cleanup } from "@testing-library/react";
 import App from "../../src/app/App";
 
-// Контент есть у всех настоящих модулей, поэтому «модуль без контента» имитируем: для модуля «Выпускной проект»
+// Контент есть у всех настоящих модулей, поэтому «модуль без контента» имитируем: для модуля 11 (у него нет и тренажёра)
 // загрузчик возвращает пустую теорию и пустые кейсы (остальные модули работают с настоящими данными).
 vi.mock("../../src/content/loader", async () => {
   const actual = await vi.importActual<typeof import("../../src/content/loader")>("../../src/content/loader");
   return {
     ...actual,
-    hasTheory: (id: string) => (id === "final" ? false : actual.hasTheory(id)),
-    getCases: (id: string) => (id === "final" ? [] : actual.getCases(id)),
+    hasTheory: (id: string) => (id === "11" ? false : actual.hasTheory(id)),
+    getCases: (id: string) => (id === "11" ? [] : actual.getCases(id)),
   };
 });
 import { MODULES, PUBLISHED_WAVES, MODULES_WITH_TRAINER, findModule, isModulePublished } from "../../src/data/modules";
@@ -65,7 +65,7 @@ describe("Волны контента (US-8.5)", () => {
 
 describe("Статус «В разработке» (US-8.4)", () => {
   it("модуль без контента: все разделы помечены, теория показывает пометку", async () => {
-    window.location.hash = "#/modules/final";
+    window.location.hash = "#/modules/11";
     render(<App />);
     const nav = await screen.findByRole("navigation", { name: "Разделы модуля" });
     for (const name of ["Теория", "Кейсы", "Тренажёры"]) {
@@ -106,7 +106,7 @@ describe("Статус «В разработке» (US-8.4)", () => {
   });
 
   it("вкладка «Кейсы» модуля без кейсов объясняет, что раздел в разработке", async () => {
-    window.location.hash = "#/modules/final/cases";
+    window.location.hash = "#/modules/11/cases";
     render(<App />);
     expect(await screen.findByText(/Кейсы для этого модуля появятся/)).toBeTruthy();
   });

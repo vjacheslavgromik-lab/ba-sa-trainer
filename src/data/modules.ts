@@ -37,7 +37,7 @@ export function isModulePublished(m: ModuleInfo, published: readonly number[] = 
 }
 
 /** Модули, у которых есть тренажёр: остальным вкладка «Тренажёры» показывает «В разработке» (US-8.4). */
-export const MODULES_WITH_TRAINER: readonly string[] = ["3", "4", "9"];
+export const MODULES_WITH_TRAINER: readonly string[] = ["3", "4", "9", "12", "final"];
 
 export function findModule(id: string | undefined): ModuleInfo | undefined {
   return MODULES.find((m) => m.id === id);
