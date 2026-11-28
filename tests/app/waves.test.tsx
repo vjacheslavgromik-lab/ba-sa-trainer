@@ -9,8 +9,7 @@ vi.mock("../../src/content/loader", async () => {
   const actual = await vi.importActual<typeof import("../../src/content/loader")>("../../src/content/loader");
   return {
     ...actual,
-    getTheory: (id: string) => (id === "final" ? [] : actual.getTheory(id)),
-    getTheoryParts: (id: string) => (id === "final" ? [] : actual.getTheoryParts(id)),
+    hasTheory: (id: string) => (id === "final" ? false : actual.hasTheory(id)),
     getCases: (id: string) => (id === "final" ? [] : actual.getCases(id)),
   };
 });

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse } from "yaml";
-import { getTheoryParts } from "../../src/content/loader";
+import { getTheoryParts } from "../helpers/theory";
 
 const parts = getTheoryParts("9");
 

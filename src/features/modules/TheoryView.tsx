@@ -1,7 +1,8 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Markdown, { type Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { getTheoryParts } from "../../content/loader";
+import { hasTheory, loadTheoryParts, type TheoryPart } from "../../content/loader";
 import { InDevelopment } from "./InDevelopment";
 import { DownloadableCode } from "./DownloadableCode";
 
@@ -40,10 +41,37 @@ function goTo(id: string) {
 
 export default function TheoryView() {
   const { id } = useParams();
-  const parts = getTheoryParts(id ?? "");
-  if (parts.length === 0) {
+  const moduleId = id ?? "";
+  const [loaded, setLoaded] = useState<{ moduleId: string; parts: TheoryPart[] } | null>(null);
+  const [failedModule, setFailedModule] = useState<string | null>(null);
+  const available = hasTheory(moduleId);
+
+  useEffect(() => {
+    if (!available) return;
+    let cancelled = false;
+    loadTheoryParts(moduleId).then(
+      (parts) => {
+        if (!cancelled) setLoaded({ moduleId, parts });
+      },
+      () => {
+        if (!cancelled) setFailedModule(moduleId);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [moduleId, available]);
+
+  if (!available) {
     return <InDevelopment what="Теория" />;
   }
+  if (failedModule === moduleId) {
+    return <p role="alert" className="feedback feedback--bad">Не удалось загрузить теорию. Проверьте соединение и обновите страницу.</p>;
+  }
+  if (!loaded || loaded.moduleId !== moduleId) {
+    return <p role="status" className="muted">Загрузка теории…</p>;
+  }
+  const parts = loaded.parts;
   const chapters = parts.length > 1;
   return (
     <article className="theory">
