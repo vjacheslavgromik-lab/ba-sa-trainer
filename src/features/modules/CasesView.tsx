@@ -36,7 +36,7 @@ function CaseCard({ data }: { data: CaseData }) {
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
   const saved = progress.cases[data.id]?.answers ?? {};
   const [answers, setAnswers] = useState<Record<string, number>>(saved);
-  const [submitted, setSubmitted] = useState(Object.keys(saved).length === data.questions.length);
+  const [submitted, setSubmitted] = useState(data.gate !== "none" && Object.keys(saved).length === data.questions.length);
 
   const savedPractice = progress.cases[data.id]?.practice;
   const [practiceText, setPracticeText] = useState<string>(savedPractice?.answer ?? "");
@@ -58,7 +58,9 @@ function CaseCard({ data }: { data: CaseData }) {
   const total = data.questions.length;
   const rightCount = Math.round(score * total);
   const needed = requiredCorrect(total);
-  const passed = submitted && rightCount >= needed;
+  // Кейс без гейта (выпускной проект) открывается сразу: вопросов по теории у него нет.
+  const noGate = data.gate === "none";
+  const passed = noGate || (submitted && rightCount >= needed);
 
   function persist(patch: Partial<NonNullable<Progress["cases"][string]>>) {
     const base = progress ?? emptyProgress();
@@ -98,6 +100,7 @@ function CaseCard({ data }: { data: CaseData }) {
 
   return (
     <section className="case-card" aria-label={data.title}>
+      {!noGate && (
       <section className="stage" aria-labelledby={`theory-check-${data.id}`}>
         <h3 id={`theory-check-${data.id}`}>Теория</h3>
         <p className="muted">
@@ -171,6 +174,7 @@ function CaseCard({ data }: { data: CaseData }) {
           </>
         )}
       </section>
+      )}
 
       <section className="stage" aria-labelledby={`practice-${data.id}`}>
         <h3 id={`practice-${data.id}`}>Практика: «{data.title}»</h3>

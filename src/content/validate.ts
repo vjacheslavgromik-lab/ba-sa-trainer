@@ -105,8 +105,13 @@ export function validateCase(file: string, data: unknown): ValidationError[] {
       }
     }
   }
-  if (!Array.isArray(data.questions) || data.questions.length === 0 || !data.questions.every(isNonEmptyString))
+  if (data.gate !== undefined && data.gate !== "questions" && data.gate !== "none") err("gate", "gate должен быть questions или none");
+  if (data.gate === "none") {
+    if (data.questions !== undefined && (!Array.isArray(data.questions) || data.questions.length > 0))
+      err("questions", "у кейса без гейта (gate: none) вопросов быть не должно");
+  } else if (!Array.isArray(data.questions) || data.questions.length === 0 || !data.questions.every(isNonEmptyString)) {
     err("questions", "нужен хотя бы один вопрос для гейта (ID вопросов)");
+  }
   return errs;
 }
 
